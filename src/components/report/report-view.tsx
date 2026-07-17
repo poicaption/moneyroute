@@ -1,4 +1,6 @@
 import { Card, Eyebrow, SectionTitle } from "@/components/ui/card";
+import PersonaImage from "@/components/persona/persona-image";
+import type { MoneyTypeKey } from "@/lib/domain/money-types";
 import type { Report } from "@/lib/domain/report";
 
 function Section({
@@ -73,12 +75,94 @@ export default function ReportView({ report }: { report: Report }) {
         </Card>
       </Section>
 
+      {/* 1b. Personalized plan (only when an intake profile exists) */}
+      {report.personalization ? (
+        <Section eyebrow="ปรับเฉพาะคุณ" title="แผนที่ตัดมาให้พอดีกับคุณ">
+          <Card glow="gold" className="space-y-6 p-6 sm:p-8">
+            <p className="leading-relaxed text-paper/90">
+              {report.personalization.summary}
+            </p>
+
+            <div className="grid gap-4 sm:grid-cols-3">
+              <div className="rounded-lg border border-border bg-ink/30 p-4">
+                <p className="text-xs uppercase tracking-widest text-muted">
+                  จังหวะที่แนะนำ
+                </p>
+                <p className="mt-1 text-lg font-semibold text-gold">
+                  {report.personalization.paceLabel}
+                </p>
+                <p className="mt-1 text-sm text-paper/70">
+                  ~{report.personalization.dailyMinutes} นาที/วัน
+                </p>
+              </div>
+              <div className="rounded-lg border border-border bg-ink/30 p-4">
+                <p className="text-xs uppercase tracking-widest text-muted">
+                  ช่วงราคาที่เหมาะกับเป้าคุณ
+                </p>
+                <p className="mt-1 text-lg font-semibold text-gold">
+                  {report.personalization.priceBand[0].toLocaleString("th-TH")}–
+                  {report.personalization.priceBand[1].toLocaleString("th-TH")} ฿
+                </p>
+                {report.personalization.customersNeeded > 0 ? (
+                  <p className="mt-1 text-sm text-paper/70">
+                    ต้องปิด ~{report.personalization.customersNeeded} ลูกค้า/เดือน
+                  </p>
+                ) : null}
+              </div>
+              <div className="rounded-lg border border-border bg-ink/30 p-4">
+                <p className="text-xs uppercase tracking-widest text-muted">
+                  เป้าหมายของคุณ
+                </p>
+                <p className="mt-1 text-lg font-semibold text-gold">
+                  {report.personalization.goalLabel}
+                </p>
+              </div>
+            </div>
+
+            <div className="grid gap-6 sm:grid-cols-2">
+              <div className="space-y-2">
+                <h3 className="font-semibold text-paper">จังหวะรายสัปดาห์ของคุณ</h3>
+                <Bullets items={report.personalization.weeklyPlan} />
+              </div>
+              <div className="space-y-2">
+                <h3 className="font-semibold text-paper">หมุดหมายความคืบหน้า</h3>
+                <ul className="space-y-2 text-sm leading-relaxed text-paper/80">
+                  {report.personalization.milestones.map((m, i) => (
+                    <li key={i} className="flex gap-2">
+                      <span className="mt-0.5 font-mono text-xs text-gold">
+                        {m.label}
+                      </span>
+                      <span>{m.target}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+
+            <div className="rounded-lg border border-gold/30 bg-gold/5 p-4">
+              <p className="text-sm font-semibold text-gold">
+                โฟกัสอุปสรรคของคุณ — {report.personalization.blockerCoaching.title}
+              </p>
+              <p className="mt-1 text-sm leading-relaxed text-paper/80">
+                {report.personalization.blockerCoaching.body}
+              </p>
+            </div>
+          </Card>
+        </Section>
+      ) : null}
+
       {/* 2. Money Pattern */}
       <Section eyebrow="แบบแผนการหาเงินของคุณ" title={report.moneyPattern.name}>
         <Card className="space-y-5 p-6 sm:p-8">
-          <p className="font-mono text-sm uppercase tracking-widest text-gold">
-            {report.moneyPattern.tagline}
-          </p>
+          <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center">
+            <PersonaImage
+              type={report.moneyPattern.type as MoneyTypeKey}
+              size="lg"
+            />
+            <p className="font-mono text-sm uppercase tracking-widest text-gold">
+              {report.moneyPattern.tagline}
+            </p>
+          </div>
           <p className="leading-relaxed text-paper/80">
             {report.moneyPattern.description}
           </p>

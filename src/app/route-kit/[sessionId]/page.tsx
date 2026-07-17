@@ -5,6 +5,7 @@ import RouteKitView from "@/components/route-kit/route-kit-view";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { hasEntitlement, ROUTE_KIT_KEY } from "@/lib/persistence/entitlements";
+import { getPersonalization } from "@/lib/persistence/personalization";
 import { computeScores, type AnswerMap } from "@/lib/domain/scoring";
 import { INCOME_ROUTES, type RouteKey } from "@/lib/domain/income-routes";
 
@@ -51,11 +52,17 @@ export default async function RouteKitPage({
   const routeKey = (snapshot.routeMatches[0]?.route ??
     snapshot.cashflowRoute) as RouteKey;
 
+  const profile = await getPersonalization(user.id);
+
   return (
     <div className="flex min-h-dvh flex-col">
       <SiteHeader />
       <main className="mx-auto w-full max-w-3xl flex-1 px-4 py-12 sm:px-6 sm:py-16">
-        <RouteKitView routeKey={routeKey} routeName={INCOME_ROUTES[routeKey].name} />
+        <RouteKitView
+          routeKey={routeKey}
+          routeName={INCOME_ROUTES[routeKey].name}
+          profile={profile}
+        />
       </main>
       <SiteFooter />
     </div>

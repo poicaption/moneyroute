@@ -7,6 +7,7 @@ import {
   INCOME_BLUEPRINT_KEY,
 } from "@/lib/persistence/entitlements";
 import { computeScores, type AnswerMap } from "@/lib/domain/scoring";
+import { getPersonalization } from "@/lib/persistence/personalization";
 import { buildReport, REPORT_VERSION, TEMPLATE_VERSION } from "@/lib/domain/report";
 
 export const runtime = "nodejs";
@@ -76,9 +77,10 @@ export async function POST(request: Request) {
 
   // Recompute deterministically from stored answers, then build the report.
   const snapshot = computeScores(session.answers as AnswerMap);
+  const profile = await getPersonalization(user.id);
   let report;
   try {
-    report = buildReport(snapshot);
+    report = buildReport(snapshot, profile);
   } catch {
     return NextResponse.json({ error: "report_build_failed" }, { status: 500 });
   }

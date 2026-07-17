@@ -12,6 +12,7 @@ import { ScoreBar } from "@/components/ui/score-bar";
 import { ButtonLink } from "@/components/ui/button";
 import CheckoutButton from "@/components/payments/checkout-button";
 import { SiteFooter, SiteHeader } from "@/components/site/chrome";
+import PersonaImage from "@/components/persona/persona-image";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 
 const STORAGE_KEY = `rmr_answers_${ASSESSMENT_VERSION}`;
@@ -195,16 +196,19 @@ export default function ResultView() {
       <SiteHeader />
       <main className="mx-auto w-full max-w-4xl flex-1 px-4 py-12 sm:px-6">
         {/* Hero */}
-        <section>
-          <Eyebrow>Money Type ของคุณคือ</Eyebrow>
-          <h1 className="mt-4 text-4xl font-black tracking-tight text-paper sm:text-5xl">
-            {primary.name}
-            <span className="text-red"> – </span>
-            {secondary.name.replace("THE ", "")}
-          </h1>
-          <p className="mt-4 max-w-2xl text-lg text-muted">
-            {primary.shortDescription}
-          </p>
+        <section className="flex flex-col items-start gap-6 sm:flex-row sm:items-center">
+          <PersonaImage type={snapshot.primaryType} size="xl" priority />
+          <div>
+            <Eyebrow>Money Type ของคุณคือ</Eyebrow>
+            <h1 className="mt-4 text-4xl font-black tracking-tight text-paper sm:text-5xl">
+              {primary.name}
+              <span className="text-red"> – </span>
+              {secondary.name.replace("THE ", "")}
+            </h1>
+            <p className="mt-4 max-w-2xl text-lg text-muted">
+              {primary.shortDescription}
+            </p>
+          </div>
         </section>
 
         {/* Score cards */}

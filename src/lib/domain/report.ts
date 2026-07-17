@@ -15,10 +15,22 @@ import { MONEY_TYPES } from "./money-types";
 import { INCOME_ROUTES, type RouteKey } from "./income-routes";
 import { ROUTE_CONTENT } from "./report-content";
 import type { ScoreSnapshot, RouteMatch } from "./scoring";
+import {
+  type PersonalizationProfile,
+  GOAL_LABEL,
+  BLOCKER_LABEL,
+  BLOCKER_COACHING,
+  derivePace,
+  PACE_LABEL,
+  dailyActionMinutes,
+  suggestedPriceBand,
+  customersForTarget,
+  type Pace,
+} from "./personalization";
 
 export const REPORT_VERSION = "report-v1";
 /** Content template version — bump when template content changes. */
-export const TEMPLATE_VERSION = "template-v1";
+export const TEMPLATE_VERSION = "template-v2";
 
 /** Human-readable labels for constraint flags used in penalties/diagnosis. */
 const FLAG_LABELS: Record<string, string> = {
@@ -112,6 +124,25 @@ export const ReportSchema = z.object({
   thirtyDayRoadmap: z.array(RoadmapPhaseSchema),
   stopRules: z.array(z.string()),
   bridgeNote: z.string().nullable(),
+  personalization: z
+    .object({
+      goal: z.string(),
+      goalLabel: z.string(),
+      monthlyTargetThb: z.number(),
+      hoursPerWeek: z.number(),
+      pace: z.enum(["sprint", "steady", "gentle"]),
+      paceLabel: z.string(),
+      dailyMinutes: z.number(),
+      priceBand: z.tuple([z.number(), z.number()]),
+      customersNeeded: z.number(),
+      blocker: z.string(),
+      blockerLabel: z.string(),
+      blockerCoaching: z.object({ title: z.string(), body: z.string() }),
+      summary: z.string(),
+      weeklyPlan: z.array(z.string()),
+      milestones: z.array(z.object({ label: z.string(), target: z.string() })),
+    })
+    .nullable(),
 });
 
 export type Report = z.infer<typeof ReportSchema>;
@@ -175,11 +206,121 @@ function roadmapForRoute(routeName: string): z.infer<typeof RoadmapPhaseSchema>[
 
 // ── Engine ──────────────────────────────────────────────────────────────────
 
+type PersonalizationBlock = NonNullable<Report["personalization"]>;
+
+/** A pace-appropriate weekly cadence for the customer. */
+function weeklyPlanForPace(pace: Pace, minutes: number): string[] {
+  const block = `${minutes} นาที/วัน`;
+  if (pace === "sprint") {
+    return [
+      `จันทร์–ศุกร์: ลงมือทำงานหลัก ${block} เน้นหาลูกค้า/สร้างผลงาน`,
+      "เสาร์: รวบงาน batch + เตรียมของสัปดาห์หน้า",
+      "อาทิตย์: รีวิวตัวเลข + วางแผน 3 งานสำคัญของสัปดาห์ถัดไป",
+    ];
+  }
+  if (pace === "steady") {
+    return [
+      `4–5 วัน/สัปดาห์: ทำงานหลัก ${block} สลับระหว่างหาลูกค้าและส่งมอบ`,
+      "1 วัน/สัปดาห์: รวบงาน batch (เตรียมคอนเทนต์/เทมเพลต)",
+      "ปลายสัปดาห์: รีวิวตัวเลขสั้น ๆ แล้วเลือก 3 งานของสัปดาห์หน้า",
+    ];
+  }
+  return [
+    `3 วัน/สัปดาห์: โฟกัสงานเดียวที่ขยับรายได้ ${block}`,
+    "เลือกทำเฉพาะงานที่ให้ผลตอบแทนต่อเวลาสูงสุด ตัดที่เหลือทิ้ง",
+    "สุดสัปดาห์: เช็กความคืบหน้า 10 นาที แล้วตั้งเป้าเล็กของสัปดาห์หน้า",
+  ];
+}
+
+/** Concrete progress milestones toward the income target. */
+function milestonesForTarget(
+  monthlyTargetThb: number,
+): PersonalizationBlock["milestones"] {
+  if (monthlyTargetThb <= 0) {
+    return [
+      { label: "ก้าวแรก", target: "ได้ลูกค้าจ่ายจริงรายแรก" },
+      { label: "พิสูจน์", target: "ทำซ้ำให้ได้ลูกค้ารายที่ 2–3" },
+      { label: "ตั้งหลัก", target: "มีรายได้เข้าสม่ำเสมอทุกสัปดาห์" },
+    ];
+  }
+  const quarter = Math.max(1000, Math.round((monthlyTargetThb * 0.25) / 100) * 100);
+  const half = Math.max(2000, Math.round((monthlyTargetThb * 0.5) / 100) * 100);
+  return [
+    { label: "ก้าวแรก", target: "ได้ลูกค้าจ่ายจริงรายแรก" },
+    {
+      label: "25% ของเป้า",
+      target: `ทำรายได้แตะ ${quarter.toLocaleString("th-TH")} บาท/เดือน`,
+    },
+    {
+      label: "ครึ่งทาง",
+      target: `ทำรายได้แตะ ${half.toLocaleString("th-TH")} บาท/เดือน`,
+    },
+    {
+      label: "ถึงเป้า",
+      target: `ทำรายได้ ${monthlyTargetThb.toLocaleString("th-TH")} บาท/เดือนได้สม่ำเสมอ`,
+    },
+  ];
+}
+
+/** Compose the personalization block and adjust the offer price band in place. */
+function buildPersonalization(
+  profile: PersonalizationProfile,
+  offer: z.infer<typeof OfferSchema>,
+  primaryTypeName: string,
+): { block: PersonalizationBlock; priceBand: [number, number] } {
+  const pace = derivePace(profile.hoursPerWeek);
+  const minutes = dailyActionMinutes(profile.hoursPerWeek);
+  const priceBand = suggestedPriceBand(offer.priceRangeTHB, profile);
+  const avgPrice = Math.round((priceBand[0] + priceBand[1]) / 2);
+  const customersNeeded = customersForTarget(profile.monthlyTargetThb, avgPrice);
+  const coaching = BLOCKER_COACHING[profile.blocker];
+
+  const nicheNote = profile.nicheText.trim()
+    ? ` โดยดึงจุดแข็งที่คุณบอกไว้ ("${profile.nicheText.trim()}") มาเป็นมุมที่ทำให้คุณต่างจากคนอื่น`
+    : "";
+
+  const targetLine =
+    profile.monthlyTargetThb > 0
+      ? `เป้า ${profile.monthlyTargetThb.toLocaleString("th-TH")} บาท/เดือน แปลว่าคุณต้องปิดลูกค้าประมาณ ${customersNeeded} รายต่อเดือน ที่ราคาเฉลี่ย ${avgPrice.toLocaleString("th-TH")} บาท`
+      : "โฟกัสที่การได้ลูกค้าจ่ายจริงรายแรกก่อน แล้วค่อยตั้งเป้าตัวเลข";
+
+  const summary =
+    `ในฐานะ ${primaryTypeName} ที่ตั้งเป้า "${GOAL_LABEL[profile.goal]}" ` +
+    `และมีเวลาราว ${profile.hoursPerWeek} ชม./สัปดาห์ เราปรับแผนให้เป็น${PACE_LABEL[pace]} ` +
+    `ทำได้จริงวันละ ${minutes} นาที. ${targetLine}.${nicheNote}`;
+
+  return {
+    block: {
+      goal: profile.goal,
+      goalLabel: GOAL_LABEL[profile.goal],
+      monthlyTargetThb: profile.monthlyTargetThb,
+      hoursPerWeek: profile.hoursPerWeek,
+      pace,
+      paceLabel: PACE_LABEL[pace],
+      dailyMinutes: minutes,
+      priceBand,
+      customersNeeded,
+      blocker: profile.blocker,
+      blockerLabel: BLOCKER_LABEL[profile.blocker],
+      blockerCoaching: coaching,
+      summary,
+      weeklyPlan: weeklyPlanForPace(pace, minutes),
+      milestones: milestonesForTarget(profile.monthlyTargetThb),
+    },
+    priceBand,
+  };
+}
+
 /**
  * Build the full deterministic report from a score snapshot.
+ * When a personalization profile is supplied, the report is tailored (offer
+ * price band, pace, blocker coaching, milestones) to the customer's situation.
  * Throws (via Zod) if the composed structure is somehow invalid.
  */
-export function buildReport(snapshot: ScoreSnapshot): Report {
+export function buildReport(
+  snapshot: ScoreSnapshot,
+  profile?: PersonalizationProfile | null,
+): Report {
   const matches = snapshot.routeMatches;
   const primaryMatch = matches[0];
   const primaryRouteKey = primaryMatch.route as RouteKey;
@@ -247,6 +388,16 @@ export function buildReport(snapshot: ScoreSnapshot): Report {
         `เพื่อสร้างกระแสเงินสดหล่อเลี้ยงระหว่างทาง`
       : null;
 
+  // Personalization (optional): tailors the offer price band and adds a
+  // pace/blocker/milestone block derived purely from the intake profile.
+  let firstOffer = content.offer;
+  let personalization: Report["personalization"] = null;
+  if (profile) {
+    const built = buildPersonalization(profile, content.offer, primaryType.name);
+    personalization = built.block;
+    firstOffer = { ...content.offer, priceRangeTHB: built.priceBand };
+  }
+
   const report: Report = {
     reportVersion: REPORT_VERSION,
     templateVersion: TEMPLATE_VERSION,
@@ -271,15 +422,14 @@ export function buildReport(snapshot: ScoreSnapshot): Report {
     primaryRoute,
     secondaryRoutes,
     antiRoutes,
-    firstOffer: content.offer,
+    firstOffer,
     firstCustomerPlan: content.customerPlan,
     sevenDayExperiment: content.sevenDayExperiment,
     thirtyDayRoadmap: roadmapForRoute(primaryRoute.name),
     stopRules: content.stopRules,
     bridgeNote,
+    personalization,
   };
-
-  // Anti-type trait is used to enrich the "avoid" narrative deterministically.
   report.executiveDiagnosis.avoid += antiTypeMoney
     ? ` (จุดอ่อนที่ต้องระวัง: ${antiTypeMoney.weaknesses[0]})`
     : "";

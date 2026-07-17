@@ -12,6 +12,11 @@ import {
   getExperiment,
   experimentTasks,
 } from "@/lib/persistence/experiments";
+import { getPersonalization } from "@/lib/persistence/personalization";
+import {
+  buildExperimentContinuation,
+  experimentIntro,
+} from "@/lib/domain/experiment-program";
 import { computeScores, type AnswerMap } from "@/lib/domain/scoring";
 import { INCOME_ROUTES, type RouteKey } from "@/lib/domain/income-routes";
 
@@ -59,6 +64,10 @@ export default async function ExperimentPage({
     snapshot.cashflowRoute) as RouteKey;
   const tasks = experimentTasks(routeKey);
   const experiment = await getExperiment(user.id, sessionId);
+  const profile = await getPersonalization(user.id);
+  const routeName = INCOME_ROUTES[routeKey].name;
+  const continuation = buildExperimentContinuation(routeName, profile);
+  const personalizedIntro = experimentIntro(profile);
 
   return (
     <div className="flex min-h-dvh flex-col">
@@ -66,8 +75,10 @@ export default async function ExperimentPage({
       <main className="mx-auto w-full max-w-3xl flex-1 px-4 py-12 sm:px-6 sm:py-16">
         <ExperimentTracker
           sessionId={sessionId}
-          routeName={INCOME_ROUTES[routeKey].name}
+          routeName={routeName}
           tasks={tasks}
+          continuation={continuation}
+          personalizedIntro={personalizedIntro}
           initial={
             experiment
               ? {

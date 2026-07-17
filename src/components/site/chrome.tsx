@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ButtonLink } from "@/components/ui/button";
 import { AuthNav } from "@/components/auth/auth-nav";
+import { MobileMenu } from "@/components/site/mobile-menu";
 
 export function SiteHeader() {
   return (
@@ -25,6 +26,7 @@ export function SiteHeader() {
           <ButtonLink href="/assessment" variant="gold" size="sm">
             เริ่มวิเคราะห์
           </ButtonLink>
+          <MobileMenu />
         </nav>
       </div>
     </header>

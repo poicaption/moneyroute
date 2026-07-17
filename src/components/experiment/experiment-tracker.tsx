@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Card, Eyebrow, SectionTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import type { ExperimentTask } from "@/lib/domain/report-content";
+import type { ProgramPhase } from "@/lib/domain/experiment-program";
 
 type ExperimentState = {
   id: string;
@@ -19,11 +20,15 @@ export default function ExperimentTracker({
   routeName,
   tasks,
   initial,
+  continuation = [],
+  personalizedIntro = null,
 }: {
   sessionId: string;
   routeName: string;
   tasks: ExperimentTask[];
   initial: ExperimentState | null;
+  continuation?: ProgramPhase[];
+  personalizedIntro?: string | null;
 }) {
   const router = useRouter();
   const [experiment, setExperiment] = useState<ExperimentState | null>(initial);
@@ -86,6 +91,9 @@ export default function ExperimentTracker({
         <p className="text-sm text-muted">
           ลงมือทำวันละก้าว เป้าหมายคือได้ทำ Market Action จริงภายใน 7 วัน
         </p>
+        {personalizedIntro ? (
+          <p className="text-sm text-gold">{personalizedIntro}</p>
+        ) : null}
       </div>
 
       {experiment ? (
@@ -171,6 +179,41 @@ export default function ExperimentTracker({
           );
         })}
       </ol>
+
+      {continuation.length > 0 ? (
+        <section className="space-y-4 border-t border-border pt-8">
+          <div className="space-y-2">
+            <Eyebrow>หลังจบ 7 วัน</Eyebrow>
+            <SectionTitle className="text-2xl">โปรแกรมต่อเนื่อง 30 วัน</SectionTitle>
+            <p className="text-sm text-muted">
+              7 วันแรกคือการพิสูจน์ว่าทำได้จริง — 3 สัปดาห์ต่อไปคือการเปลี่ยนให้เป็นรายได้ที่อยู่ตัว
+            </p>
+          </div>
+          <ol className="space-y-3">
+            {continuation.map((phase, i) => (
+              <li key={i}>
+                <Card className="space-y-3 p-5">
+                  <div className="flex flex-wrap items-baseline justify-between gap-2">
+                    <p className="font-semibold text-paper">{phase.title}</p>
+                    <span className="font-mono text-xs text-gold">
+                      {phase.window}
+                    </span>
+                  </div>
+                  <p className="text-sm text-paper/70">{phase.goal}</p>
+                  <ul className="space-y-2 text-sm leading-relaxed text-paper/80">
+                    {phase.actions.map((a, j) => (
+                      <li key={j} className="flex gap-2">
+                        <span className="mt-1 text-gold">▸</span>
+                        <span>{a}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </Card>
+              </li>
+            ))}
+          </ol>
+        </section>
+      ) : null}
     </div>
   );
 }

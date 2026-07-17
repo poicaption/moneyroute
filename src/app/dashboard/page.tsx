@@ -12,7 +12,9 @@ import {
   ROUTE_KIT_KEY,
 } from "@/lib/persistence/entitlements";
 import { getExperiment } from "@/lib/persistence/experiments";
+import { getPersonalization } from "@/lib/persistence/personalization";
 import { MONEY_TYPES, type MoneyTypeKey } from "@/lib/domain/money-types";
+import PersonaImage from "@/components/persona/persona-image";
 import { INCOME_ROUTES, type RouteKey } from "@/lib/domain/income-routes";
 import type { RouteMatch } from "@/lib/domain/scoring";
 
@@ -107,6 +109,9 @@ export default async function DashboardPage() {
   const firstName = user.email?.split("@")[0] ?? "คุณ";
   const latestSessionId = sessions[0]?.id ?? null;
 
+  // Whether the user has completed the personalization intake.
+  const hasProfile = admin ? (await getPersonalization(user.id)) !== null : false;
+
   // 7-day experiment progress for the latest session (entitled users only).
   let experimentProgress: { completed: number; total: number; status: string } | null =
     null;
@@ -167,6 +172,9 @@ export default async function DashboardPage() {
               <ButtonLink href="/opportunities" variant="ghost" size="sm">
                 ดูโอกาสสร้างรายได้
               </ButtonLink>
+              <ButtonLink href="/account" variant="ghost" size="sm">
+                จัดการบัญชี
+              </ButtonLink>
               <ButtonLink href="/pricing" variant="ghost" size="sm">
                 ราคาและแพ็กเกจ
               </ButtonLink>
@@ -180,12 +188,17 @@ export default async function DashboardPage() {
                 <Eyebrow>Money Type ของคุณ</Eyebrow>
                 {latest ? (
                   <>
-                    <h2 className="text-2xl font-extrabold text-paper">
-                      {MONEY_TYPES[latest.primaryType].name}
-                    </h2>
-                    <p className="font-mono text-xs uppercase tracking-widest text-gold">
-                      {MONEY_TYPES[latest.primaryType].tagline}
-                    </p>
+                    <div className="flex items-center gap-4">
+                      <PersonaImage type={latest.primaryType} size="md" />
+                      <div>
+                        <h2 className="text-2xl font-extrabold text-paper">
+                          {MONEY_TYPES[latest.primaryType].name}
+                        </h2>
+                        <p className="font-mono text-xs uppercase tracking-widest text-gold">
+                          {MONEY_TYPES[latest.primaryType].tagline}
+                        </p>
+                      </div>
+                    </div>
                     <p className="text-sm leading-relaxed text-paper/80">
                       {MONEY_TYPES[latest.primaryType].shortDescription}
                     </p>
@@ -219,6 +232,40 @@ export default async function DashboardPage() {
                 )}
               </Card>
             </div>
+
+            {/* Personalization intake prompt */}
+            {(entitled || entitledKit) && (
+              <Card
+                glow={hasProfile ? undefined : "gold"}
+                className="mt-6 flex flex-col gap-4 p-6 sm:flex-row sm:items-center sm:justify-between"
+              >
+                <div className="space-y-1">
+                  <Eyebrow>ปรับเฉพาะคุณ</Eyebrow>
+                  <p className="text-lg font-semibold text-paper">
+                    {hasProfile
+                      ? "เนื้อหาถูกปรับให้เหมาะกับคุณแล้ว"
+                      : "ตอบ 7 ข้อ เพื่อให้เราปรับทุกอย่างให้ตรงคุณ"}
+                  </p>
+                  <p className="text-sm text-muted">
+                    {hasProfile
+                      ? "อัปเดตเป้าหมาย เวลา หรืองบได้ทุกเมื่อ แล้วรายงาน/Route Kit จะปรับตาม"
+                      : "เป้าหมาย เวลา ทุน และอุปสรรคของคุณ ใช้ปรับ Blueprint, โปรแกรมทดลอง และ Route Kit"}
+                  </p>
+                </div>
+                <div className="shrink-0">
+                  <ButtonLink
+                    href={
+                      latestSessionId
+                        ? `/personalize?session=${latestSessionId}&next=/dashboard`
+                        : "/personalize?next=/dashboard"
+                    }
+                    variant={hasProfile ? "outline" : "gold"}
+                  >
+                    {hasProfile ? "แก้ไขคำตอบ" : "เริ่มปรับเฉพาะคุณ"}
+                  </ButtonLink>
+                </div>
+              </Card>
+            )}
 
             {/* Blueprint access */}
             <Card className="mt-6 flex flex-col gap-4 p-6 sm:flex-row sm:items-center sm:justify-between">
@@ -393,6 +440,9 @@ export default async function DashboardPage() {
                 </ButtonLink>
                 <ButtonLink href="/billing" variant="ghost" size="sm">
                   การเรียกเก็บเงิน
+                </ButtonLink>
+                <ButtonLink href="/account" variant="ghost" size="sm">
+                  จัดการบัญชี
                 </ButtonLink>
               </div>
             </section>

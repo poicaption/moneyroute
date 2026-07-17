@@ -53,6 +53,12 @@ export function AuthNav() {
         >
           แดชบอร์ด
         </Link>
+        <Link
+          href="/account"
+          className="hidden px-3 text-sm text-muted transition-colors hover:text-paper sm:inline"
+        >
+          บัญชี
+        </Link>
         <button
           onClick={signOut}
           className="hidden px-3 text-sm text-muted transition-colors hover:text-paper sm:inline"

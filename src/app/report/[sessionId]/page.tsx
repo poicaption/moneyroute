@@ -12,6 +12,7 @@ import {
   ROUTE_KIT_KEY,
 } from "@/lib/persistence/entitlements";
 import { computeScores, type AnswerMap } from "@/lib/domain/scoring";
+import { getPersonalization } from "@/lib/persistence/personalization";
 import {
   buildReport,
   ReportSchema,
@@ -69,20 +70,14 @@ export default async function ReportPage({
     .eq("session_id", sessionId)
     .maybeSingle();
 
-  let report: Report;
-  const isFresh =
-    existing &&
-    existing.report_version === REPORT_VERSION &&
-    existing.template_version === TEMPLATE_VERSION;
+  // Personalization tailors the report to the customer's intake profile.
+  const profile = await getPersonalization(user.id);
 
-  if (isFresh) {
-    const parsed = ReportSchema.safeParse(existing.structured_content);
-    report = parsed.success
-      ? parsed.data
-      : buildReport(computeScores(session.answers as AnswerMap));
-  } else {
-    report = buildReport(computeScores(session.answers as AnswerMap));
-    // Persist (best-effort) so future loads are fast and stable.
+  let report: Report;
+
+  if (profile) {
+    // Always rebuild with the current profile so edits take effect immediately.
+    report = buildReport(computeScores(session.answers as AnswerMap), profile);
     await admin.from("reports").upsert(
       {
         session_id: sessionId,
@@ -95,6 +90,33 @@ export default async function ReportPage({
       },
       { onConflict: "session_id" },
     );
+  } else {
+    const isFresh =
+      existing &&
+      existing.report_version === REPORT_VERSION &&
+      existing.template_version === TEMPLATE_VERSION;
+
+    if (isFresh) {
+      const parsed = ReportSchema.safeParse(existing.structured_content);
+      report = parsed.success
+        ? parsed.data
+        : buildReport(computeScores(session.answers as AnswerMap));
+    } else {
+      report = buildReport(computeScores(session.answers as AnswerMap));
+      // Persist (best-effort) so future loads are fast and stable.
+      await admin.from("reports").upsert(
+        {
+          session_id: sessionId,
+          user_id: user.id,
+          report_version: REPORT_VERSION,
+          template_version: TEMPLATE_VERSION,
+          status: "ready",
+          structured_content: report,
+          updated_at: new Date().toISOString(),
+        },
+        { onConflict: "session_id" },
+      );
+    }
   }
 
   const entitledKit = await hasEntitlement(user.id, ROUTE_KIT_KEY);
