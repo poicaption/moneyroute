@@ -16,6 +16,9 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          # อย่าฝัง credential ของ github-actions[bot] ไว้กับ github.com
+          # ไม่งั้นมันจะทับ MIRROR_TOKEN ใน URL แล้ว push ไป poicaption ไม่ได้
+          persist-credentials: false
 
       - name: Push to poicaption/moneyroute
         env:
