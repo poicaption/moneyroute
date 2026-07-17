@@ -1,26 +1,82 @@
 @import "tailwindcss";
 
+/*
+ * ROOTMAN MONEY ROUTE — Design Tokens
+ * Dark editorial / premium business intelligence theme.
+ */
+@theme {
+  /* Brand palette */
+  --color-bg: #1a1714;
+  --color-ink: #0b0a09;
+  --color-red: #c23b22;
+  --color-red-soft: #d9573f;
+  --color-gold: #b8860b;
+  --color-gold-soft: #d4a017;
+  --color-tan: #c4956a;
+  --color-paper: #f4efe8;
+  --color-muted: #aaa29a;
+
+  --color-success: #5c7a5c;
+  --color-warning: #d4a017;
+  --color-error: #a12d1a;
+
+  /* Surfaces */
+  --color-surface: #221e1a;
+  --color-surface-2: #2b2621;
+  --color-border: #3a332c;
+
+  /* Fonts */
+  --font-sans: var(--font-prompt), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-mono-brand), ui-monospace, "SFMono-Regular", monospace;
+}
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  color-scheme: dark;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html,
+body {
+  background-color: var(--color-bg);
+  color: var(--color-paper);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  /* Subtle brand glow / editorial texture */
+  background-image:
+    radial-gradient(
+      1200px 600px at 100% -10%,
+      rgba(194, 59, 34, 0.08),
+      transparent 60%
+    ),
+    radial-gradient(
+      900px 500px at -10% 10%,
+      rgba(184, 134, 11, 0.06),
+      transparent 55%
+    );
+  background-attachment: fixed;
+}
+
+/* Thin gold divider utility */
+.hairline {
+  border-color: color-mix(in srgb, var(--color-gold) 35%, transparent);
+}
+
+/* Focus ring consistent with brand */
+:where(a, button, input, select, textarea, [tabindex]):focus-visible {
+  outline: 2px solid var(--color-gold-soft);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--color-red) 55%, transparent);
+  color: var(--color-paper);
+}
+
+/* Custom scrollbar for the dark theme */
+* {
+  scrollbar-color: var(--color-border) transparent;
 }
