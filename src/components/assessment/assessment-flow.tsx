@@ -23,9 +23,17 @@ export default function AssessmentFlow() {
       const raw = localStorage.getItem(STORAGE_KEY);
       if (raw) {
         const saved = JSON.parse(raw) as Answers;
-        setAnswers(saved);
         const firstUnanswered = QUESTIONS.findIndex((q) => !saved[q.code]);
-        setIndex(firstUnanswered === -1 ? QUESTIONS.length - 1 : firstUnanswered);
+        if (firstUnanswered === -1) {
+          // A previous run was already completed — start a fresh assessment
+          // instead of dropping the user on the last question.
+          localStorage.removeItem(STORAGE_KEY);
+          setAnswers({});
+          setIndex(0);
+        } else {
+          setAnswers(saved);
+          setIndex(firstUnanswered);
+        }
       }
     } catch {
       /* ignore corrupt storage */

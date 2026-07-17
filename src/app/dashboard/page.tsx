@@ -132,19 +132,46 @@ export default async function DashboardPage() {
         </div>
 
         {sessions.length === 0 ? (
-          <Card glow="gold" className="mt-8 space-y-4 p-8 text-center">
-            <p className="text-lg text-paper">
-              คุณยังไม่ได้ทำแบบวิเคราะห์ Money Scan
-            </p>
-            <p className="text-sm text-muted">
-              เริ่มวิเคราะห์เพื่อค้นหา Money Type และเส้นทางสร้างรายได้ที่เหมาะกับคุณ
-            </p>
-            <div className="pt-2">
-              <ButtonLink href="/assessment" variant="gold">
-                เริ่มวิเคราะห์
+          <>
+            <Card glow="gold" className="mt-8 space-y-4 p-8 text-center">
+              <p className="text-lg text-paper">
+                คุณยังไม่ได้ทำแบบวิเคราะห์ Money Scan
+              </p>
+              <p className="text-sm text-muted">
+                เริ่มวิเคราะห์เพื่อค้นหา Money Type และเส้นทางสร้างรายได้ที่เหมาะกับคุณ
+              </p>
+              <div className="pt-2">
+                <ButtonLink href="/assessment" variant="gold">
+                  เริ่มวิเคราะห์
+                </ButtonLink>
+              </div>
+            </Card>
+
+            {(entitled || entitledKit) && (
+              <Card className="mt-6 space-y-2 p-6">
+                <Eyebrow>สิทธิ์ที่คุณมี</Eyebrow>
+                <p className="text-sm text-muted">
+                  คุณปลดล็อก
+                  {entitled ? " Income Blueprint" : ""}
+                  {entitled && entitledKit ? " และ" : ""}
+                  {entitledKit ? " Route Kit" : ""} ไว้แล้ว —
+                  ทำแบบวิเคราะห์เพื่อเปิดใช้งานเนื้อหาที่ปรับเฉพาะคุณ
+                </p>
+              </Card>
+            )}
+
+            <section className="mt-6 flex flex-wrap gap-2">
+              <ButtonLink href="/billing" variant="outline" size="sm">
+                การเรียกเก็บเงิน / ประวัติการสั่งซื้อ
               </ButtonLink>
-            </div>
-          </Card>
+              <ButtonLink href="/opportunities" variant="ghost" size="sm">
+                ดูโอกาสสร้างรายได้
+              </ButtonLink>
+              <ButtonLink href="/pricing" variant="ghost" size="sm">
+                ราคาและแพ็กเกจ
+              </ButtonLink>
+            </section>
+          </>
         ) : (
           <>
             {/* Headline result */}
