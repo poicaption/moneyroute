@@ -15,6 +15,8 @@ export const env = {
   // Stripe (server-only). Payments are OPTIONAL — absent config disables checkout.
   stripeSecretKey: process.env.STRIPE_SECRET_KEY ?? "",
   stripeWebhookSecret: process.env.STRIPE_WEBHOOK_SECRET ?? "",
+  // Admin console password (server-only). Absent disables the admin area.
+  adminPassword: process.env.ADMIN_PASSWORD ?? "",
 };
 
 /** True when public Supabase config (URL + anon key) is available. */
@@ -30,4 +32,9 @@ export function isSupabaseAdminConfigured(): boolean {
 /** True when Stripe payments are configured (secret key present). */
 export function isStripeConfigured(): boolean {
   return Boolean(env.stripeSecretKey);
+}
+
+/** True when the admin console password is configured. */
+export function isAdminConfigured(): boolean {
+  return Boolean(env.adminPassword);
 }

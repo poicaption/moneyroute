@@ -360,9 +360,12 @@ export default async function DashboardPage() {
                   </Card>
                 ))}
               </div>
-              <div className="pt-2">
+              <div className="flex flex-wrap gap-2 pt-2">
                 <ButtonLink href="/assessment" variant="outline" size="sm">
                   วิเคราะห์ใหม่อีกครั้ง
+                </ButtonLink>
+                <ButtonLink href="/billing" variant="ghost" size="sm">
+                  การเรียกเก็บเงิน
                 </ButtonLink>
               </div>
             </section>

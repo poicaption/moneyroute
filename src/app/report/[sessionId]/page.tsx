@@ -1,12 +1,15 @@
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import { SiteFooter, SiteHeader } from "@/components/site/chrome";
+import { Eyebrow } from "@/components/ui/card";
+import { ButtonLink } from "@/components/ui/button";
 import ReportView from "@/components/report/report-view";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import {
   hasEntitlement,
   INCOME_BLUEPRINT_KEY,
+  ROUTE_KIT_KEY,
 } from "@/lib/persistence/entitlements";
 import { computeScores, type AnswerMap } from "@/lib/domain/scoring";
 import {
@@ -94,11 +97,46 @@ export default async function ReportPage({
     );
   }
 
+  const entitledKit = await hasEntitlement(user.id, ROUTE_KIT_KEY);
+
   return (
     <div className="flex min-h-dvh flex-col">
       <SiteHeader />
       <main className="mx-auto w-full max-w-3xl flex-1 px-4 py-12 sm:px-6 sm:py-16">
         <ReportView report={report} />
+
+        {/* Next actions */}
+        <section className="mt-16 grid gap-4 sm:grid-cols-2">
+          <div className="flex flex-col gap-3 rounded-xl border border-gold/30 bg-surface/70 p-6">
+            <Eyebrow>ลงมือทำจริง</Eyebrow>
+            <p className="text-sm text-paper/80">
+              เริ่มแผนทดลอง 7 วัน แล้วติดตามความคืบหน้าทีละวัน
+            </p>
+            <ButtonLink href={`/experiment/${sessionId}`} variant="gold">
+              เริ่มการทดลอง 7 วัน
+            </ButtonLink>
+          </div>
+          <div className="flex flex-col gap-3 rounded-xl border border-border bg-surface/70 p-6">
+            <Eyebrow>Route Kit</Eyebrow>
+            <p className="text-sm text-paper/80">
+              {entitledKit
+                ? "เปิดชุดเครื่องมือลงมือทำของเส้นทางคุณ"
+                : "ปลดล็อกชุดเครื่องมือ เทมเพลต และแนวทางตั้งราคาเฉพาะเส้นทางคุณ"}
+            </p>
+            {entitledKit ? (
+              <ButtonLink href={`/route-kit/${sessionId}`} variant="outline">
+                เปิด Route Kit
+              </ButtonLink>
+            ) : (
+              <ButtonLink
+                href={`/pricing?session=${sessionId}`}
+                variant="outline"
+              >
+                ปลดล็อก Route Kit 590฿
+              </ButtonLink>
+            )}
+          </div>
+        </section>
       </main>
       <SiteFooter />
     </div>
