@@ -12,7 +12,6 @@ type Status =
   | "working"
   | "magic_sent"
   | "reset_sent"
-  | "confirm_email"
   | "error"
   | "unconfigured";
 
@@ -67,20 +66,32 @@ export default function LoginForm() {
     const { data, error } = await supabase.auth.signUp({
       email: email.trim(),
       password,
-      options: { emailRedirectTo: callbackUrl(next) },
     });
     if (error) {
       setStatus("error");
       setMessage(error.message);
       return;
     }
-    // No session means Supabase requires email confirmation first.
+    // With email confirmation disabled, sign-up returns a session directly.
     if (data.session) {
       router.push(next);
       router.refresh();
-    } else {
-      setStatus("confirm_email");
+      return;
     }
+    // Otherwise sign in immediately with the same credentials.
+    const { error: signInError } = await supabase.auth.signInWithPassword({
+      email: email.trim(),
+      password,
+    });
+    if (signInError) {
+      setStatus("error");
+      setMessage(
+        "สมัครสมาชิกสำเร็จ แต่เข้าสู่ระบบอัตโนมัติไม่ได้ กรุณาเข้าสู่ระบบด้วยอีเมลและรหัสผ่านของคุณ",
+      );
+      return;
+    }
+    router.push(next);
+    router.refresh();
   }
 
   // Magic link fallback.
@@ -128,17 +139,11 @@ export default function LoginForm() {
     setStatus("reset_sent");
   }
 
-  if (
-    status === "magic_sent" ||
-    status === "reset_sent" ||
-    status === "confirm_email"
-  ) {
+  if (status === "magic_sent" || status === "reset_sent") {
     const text =
       status === "magic_sent"
         ? "ส่งลิงก์เข้าสู่ระบบไปที่อีเมลของคุณแล้ว กรุณาเปิดอีเมลแล้วคลิกลิงก์"
-        : status === "reset_sent"
-          ? "ส่งลิงก์รีเซ็ตรหัสผ่านไปที่อีเมลของคุณแล้ว กรุณาเปิดอีเมลเพื่อตั้งรหัสผ่านใหม่"
-          : "สมัครสมาชิกแล้ว! กรุณายืนยันอีเมลของคุณโดยคลิกลิงก์ที่เราส่งไป จากนั้นจึงเข้าสู่ระบบ";
+        : "ส่งลิงก์รีเซ็ตรหัสผ่านไปที่อีเมลของคุณแล้ว กรุณาเปิดอีเมลเพื่อตั้งรหัสผ่านใหม่";
     return (
       <Card glow="gold" className="p-8">
         <Eyebrow>เข้าสู่ระบบ</Eyebrow>
