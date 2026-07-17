@@ -46,13 +46,21 @@ export function AuthNav() {
 
   if (email) {
     return (
-      <button
-        onClick={signOut}
-        className="hidden px-3 text-sm text-muted transition-colors hover:text-paper sm:inline"
-        title={email}
-      >
-        ออกจากระบบ
-      </button>
+      <>
+        <Link
+          href="/dashboard"
+          className="hidden px-3 text-sm text-muted transition-colors hover:text-paper sm:inline"
+        >
+          แดชบอร์ด
+        </Link>
+        <button
+          onClick={signOut}
+          className="hidden px-3 text-sm text-muted transition-colors hover:text-paper sm:inline"
+          title={email}
+        >
+          ออกจากระบบ
+        </button>
+      </>
     );
   }
 
