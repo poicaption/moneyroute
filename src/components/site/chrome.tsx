@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ButtonLink } from "@/components/ui/button";
+import { AuthNav } from "@/components/auth/auth-nav";
 
 export function SiteHeader() {
   return (
@@ -20,6 +21,7 @@ export function SiteHeader() {
           >
             ราคา
           </Link>
+          <AuthNav />
           <ButtonLink href="/assessment" variant="gold" size="sm">
             เริ่มวิเคราะห์
           </ButtonLink>

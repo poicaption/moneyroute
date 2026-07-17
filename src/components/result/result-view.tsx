@@ -11,6 +11,7 @@ import { Card, Eyebrow, SectionTitle } from "@/components/ui/card";
 import { ScoreBar } from "@/components/ui/score-bar";
 import { ButtonLink } from "@/components/ui/button";
 import { SiteFooter, SiteHeader } from "@/components/site/chrome";
+import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 
 const STORAGE_KEY = `rmr_answers_${ASSESSMENT_VERSION}`;
 const ANON_ID_KEY = "rmr_anon_id";
@@ -87,6 +88,36 @@ export default function ResultView() {
       }
     }
     run();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  // If the visitor is signed in, attach their anonymous session to their
+  // account. Best-effort — failures are silent.
+  useEffect(() => {
+    const supabase = createSupabaseBrowserClient();
+    if (!supabase) return;
+    let cancelled = false;
+
+    supabase.auth.getUser().then(({ data }) => {
+      if (cancelled || !data.user) return;
+      let anonId: string | null = null;
+      try {
+        anonId = localStorage.getItem(ANON_ID_KEY);
+      } catch {
+        /* ignore */
+      }
+      if (!anonId) return;
+      fetch("/api/claim", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ anonymousSessionId: anonId }),
+      }).catch(() => {
+        /* ignore */
+      });
+    });
+
     return () => {
       cancelled = true;
     };
