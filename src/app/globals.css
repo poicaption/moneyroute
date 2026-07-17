@@ -28,6 +28,7 @@
   /* Fonts */
   --font-sans: var(--font-prompt), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-mono-brand), ui-monospace, "SFMono-Regular", monospace;
+  --font-pixel: var(--font-pixel-brand), var(--font-mono-brand), ui-monospace, monospace;
 }
 
 :root {
@@ -44,7 +45,7 @@ body {
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
-  /* Subtle brand glow / editorial texture */
+  /* Subtle brand glow / editorial texture + pixel grid overlay */
   background-image:
     radial-gradient(
       1200px 600px at 100% -10%,
@@ -55,8 +56,86 @@ body {
       900px 500px at -10% 10%,
       rgba(184, 134, 11, 0.06),
       transparent 55%
-    );
+    ),
+    linear-gradient(rgba(180, 134, 11, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(180, 134, 11, 0.03) 1px, transparent 1px);
+  background-size:
+    100% 100%,
+    100% 100%,
+    32px 32px,
+    32px 32px;
   background-attachment: fixed;
+}
+
+/* ── Pixel + 3D design language ─────────────────────────────────────────── */
+
+/* Pixel display font for labels, eyebrows and numeric accents. */
+.font-pixel {
+  font-family: var(--font-pixel);
+  letter-spacing: 0.02em;
+}
+
+/* Crisp scaling for any intentionally pixelated raster art. */
+.pixelated {
+  image-rendering: pixelated;
+}
+
+/* Hard-edged 3D "sticker" shadow used across cards/buttons. */
+.pixel-3d {
+  box-shadow:
+    3px 3px 0 0 rgba(11, 10, 9, 0.7),
+    6px 6px 0 0 rgba(11, 10, 9, 0.35);
+  transition:
+    transform 0.12s ease,
+    box-shadow 0.12s ease;
+}
+.pixel-3d-hover:hover {
+  transform: translate(-2px, -2px);
+  box-shadow:
+    5px 5px 0 0 rgba(11, 10, 9, 0.7),
+    9px 9px 0 0 rgba(11, 10, 9, 0.35);
+}
+/* Pressed state for interactive pixel elements. */
+.pixel-3d-press:active {
+  transform: translate(2px, 2px);
+  box-shadow:
+    1px 1px 0 0 rgba(11, 10, 9, 0.7),
+    2px 2px 0 0 rgba(11, 10, 9, 0.35);
+}
+
+/* Floating voxel/persona art — 3D pop with a soft cast shadow, no frame. */
+.persona-float {
+  filter: drop-shadow(0 18px 22px rgba(0, 0, 0, 0.55))
+    drop-shadow(0 3px 0 rgba(184, 134, 11, 0.25));
+  animation: persona-bob 5s ease-in-out infinite;
+}
+@keyframes persona-bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .persona-float {
+    animation: none;
+  }
+}
+
+/* Elliptical ground shadow placed beneath floating art. */
+.persona-ground {
+  background: radial-gradient(
+    ellipse at center,
+    rgba(0, 0, 0, 0.45) 0%,
+    rgba(0, 0, 0, 0) 70%
+  );
+}
+
+/* Pixel-styled heading emphasis. */
+.text-3d {
+  text-shadow: 3px 3px 0 rgba(11, 10, 9, 0.45);
 }
 
 /* Thin gold divider utility */

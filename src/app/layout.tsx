@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Prompt, JetBrains_Mono } from "next/font/google";
+import { Prompt, JetBrains_Mono, Silkscreen } from "next/font/google";
 import "./globals.css";
 
 const prompt = Prompt({
@@ -12,6 +12,13 @@ const prompt = Prompt({
 const monoBrand = JetBrains_Mono({
   variable: "--font-mono-brand",
   subsets: ["latin"],
+  display: "swap",
+});
+
+const pixel = Silkscreen({
+  variable: "--font-pixel-brand",
+  subsets: ["latin"],
+  weight: ["400", "700"],
   display: "swap",
 });
 
@@ -29,7 +36,7 @@ export default function RootLayout({
   return (
     <html
       lang="th"
-      className={`${prompt.variable} ${monoBrand.variable} h-full antialiased`}
+      className={`${prompt.variable} ${monoBrand.variable} ${pixel.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">{children}</body>
     </html>

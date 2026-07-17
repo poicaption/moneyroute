@@ -13,9 +13,9 @@ export function Card({
   return (
     <div
       className={cn(
-        "rounded-xl border border-border bg-surface/70 backdrop-blur-sm",
-        glow === "red" && "shadow-[0_0_40px_-16px_rgba(194,59,34,0.6)]",
-        glow === "gold" && "shadow-[0_0_40px_-16px_rgba(184,134,11,0.6)]",
+        "pixel-3d rounded-lg border-2 border-border bg-surface/80 backdrop-blur-sm",
+        glow === "red" && "border-red/40 shadow-[3px_3px_0_0_rgba(11,10,9,0.7),6px_6px_0_0_rgba(11,10,9,0.35),0_0_40px_-16px_rgba(194,59,34,0.7)]",
+        glow === "gold" && "border-gold/40 shadow-[3px_3px_0_0_rgba(11,10,9,0.7),6px_6px_0_0_rgba(11,10,9,0.35),0_0_40px_-16px_rgba(184,134,11,0.7)]",
         className,
       )}
     >
@@ -26,7 +26,7 @@ export function Card({
 
 export function Eyebrow({ children }: { children: ReactNode }) {
   return (
-    <span className="inline-block font-mono text-xs uppercase tracking-[0.3em] text-gold">
+    <span className="font-pixel inline-block text-[10px] uppercase tracking-[0.25em] text-gold">
       {children}
     </span>
   );
@@ -42,7 +42,7 @@ export function SectionTitle({
   return (
     <h2
       className={cn(
-        "text-3xl font-extrabold leading-tight tracking-tight text-paper sm:text-4xl",
+        "text-3d text-3xl font-extrabold leading-tight tracking-tight text-paper sm:text-4xl",
         className,
       )}
     >

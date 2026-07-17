@@ -13,36 +13,38 @@ export const PERSONA_IMAGES: Record<MoneyTypeKey, string> = {
 };
 
 const SIZES = {
-  sm: 64,
-  md: 96,
-  lg: 160,
-  xl: 224,
+  sm: 72,
+  md: 120,
+  lg: 200,
+  xl: 300,
 } as const;
 
 type PersonaSize = keyof typeof SIZES;
 
 /**
- * Renders the persona artwork as a gold-ringed badge. The source art sits on a
- * white field, so we crop to a circle and top-align to frame the character.
+ * Renders the persona voxel artwork as a floating 3D element. The source PNGs
+ * are transparent, so we drop the art straight onto the page with a cast
+ * shadow (and an optional ground shadow) for a layered, 3D look — no frame.
  */
 export default function PersonaImage({
   type,
   size = "md",
   className,
   priority = false,
+  float = true,
+  ground = true,
 }: {
   type: MoneyTypeKey;
   size?: PersonaSize;
   className?: string;
   priority?: boolean;
+  float?: boolean;
+  ground?: boolean;
 }) {
   const px = SIZES[size];
   return (
     <div
-      className={cn(
-        "relative shrink-0 overflow-hidden rounded-full bg-white ring-2 ring-gold/70 shadow-[0_0_28px_rgba(212,175,55,0.25)]",
-        className,
-      )}
+      className={cn("relative shrink-0", className)}
       style={{ width: px, height: px }}
     >
       <Image
@@ -51,9 +53,18 @@ export default function PersonaImage({
         width={px}
         height={px}
         priority={priority}
-        className="h-full w-full scale-110 object-cover object-top"
+        className={cn(
+          "relative z-10 h-full w-full object-contain",
+          float && "persona-float",
+        )}
         sizes={`${px}px`}
       />
+      {ground ? (
+        <div
+          aria-hidden
+          className="persona-ground pointer-events-none absolute inset-x-[12%] bottom-[2%] z-0 h-[10%] rounded-[50%]"
+        />
+      ) : null}
     </div>
   );
 }

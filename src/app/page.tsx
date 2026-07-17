@@ -2,6 +2,7 @@ import { ButtonLink } from "@/components/ui/button";
 import { Card, Eyebrow, SectionTitle } from "@/components/ui/card";
 import { SiteFooter, SiteHeader } from "@/components/site/chrome";
 import { MONEY_TYPE_LIST } from "@/lib/domain/money-types";
+import PersonaImage from "@/components/persona/persona-image";
 
 const HOW_IT_WORKS = [
   { step: "01", title: "Scan", desc: "ตอบคำถามเกี่ยวกับตัวตนและทรัพยากรของคุณ" },
@@ -46,27 +47,41 @@ export default function Home() {
       <main className="flex-1">
         {/* Hero */}
         <section className="mx-auto max-w-6xl px-4 pt-20 pb-16 sm:px-6 sm:pt-28">
-          <div className="max-w-3xl">
-            <Eyebrow>ROOTMAN MONEY ROUTE</Eyebrow>
-            <h1 className="mt-5 text-4xl font-black leading-[1.1] tracking-tight text-paper sm:text-6xl">
-              คุณอาจไม่ได้หาเงินไม่เก่ง
-              <br />
-              <span className="text-red">
-                แค่กำลังเล่นเกมที่ไม่เหมาะกับตัวเอง
-              </span>
-            </h1>
-            <p className="mt-6 max-w-2xl text-lg leading-relaxed text-muted">
-              ตอบคำถามเกี่ยวกับเงินทุน เวลา ทักษะ บุคลิก และข้อจำกัดของคุณ
-              เพื่อค้นหาเส้นทางสร้างรายได้ที่มีความเหมาะสมมากกว่า
-              พร้อมแผนเริ่มต้นที่ลงมือทำได้จริง
-            </p>
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
-              <ButtonLink href="/assessment" variant="primary" size="lg">
-                เริ่มวิเคราะห์เส้นทางของฉัน
-              </ButtonLink>
-              <span className="text-sm text-muted">
-                ไม่มีคำตอบถูกหรือผิด · ใช้เวลา 5–8 นาที
-              </span>
+          <div className="grid items-center gap-10 lg:grid-cols-[1.2fr_1fr]">
+            <div className="max-w-3xl">
+              <Eyebrow>ROOTMAN MONEY ROUTE</Eyebrow>
+              <h1 className="text-3d mt-5 text-4xl font-black leading-[1.1] tracking-tight text-paper sm:text-6xl">
+                คุณอาจไม่ได้หาเงินไม่เก่ง
+                <br />
+                <span className="text-red">
+                  แค่กำลังเล่นเกมที่ไม่เหมาะกับตัวเอง
+                </span>
+              </h1>
+              <p className="mt-6 max-w-2xl text-lg leading-relaxed text-muted">
+                ตอบคำถามเกี่ยวกับเงินทุน เวลา ทักษะ บุคลิก และข้อจำกัดของคุณ
+                เพื่อค้นหาเส้นทางสร้างรายได้ที่มีความเหมาะสมมากกว่า
+                พร้อมแผนเริ่มต้นที่ลงมือทำได้จริง
+              </p>
+              <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
+                <ButtonLink href="/assessment" variant="primary" size="lg">
+                  เริ่มวิเคราะห์เส้นทางของฉัน
+                </ButtonLink>
+                <span className="text-sm text-muted">
+                  ไม่มีคำตอบถูกหรือผิด · ใช้เวลา 5–8 นาที
+                </span>
+              </div>
+            </div>
+            {/* Floating 3D persona cluster */}
+            <div className="relative hidden h-[340px] lg:block">
+              <div className="absolute left-1/2 top-2 -translate-x-1/2">
+                <PersonaImage type="hunter" size="xl" priority />
+              </div>
+              <div className="absolute -left-2 top-32">
+                <PersonaImage type="creator" size="md" />
+              </div>
+              <div className="absolute right-0 top-40">
+                <PersonaImage type="builder" size="md" />
+              </div>
             </div>
           </div>
         </section>
@@ -116,10 +131,17 @@ export default function Home() {
             <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {MONEY_TYPE_LIST.map((t) => (
                 <Card key={t.slug} className="p-5" glow="gold">
-                  <div className="text-xl font-extrabold tracking-tight text-paper">
-                    {t.name}
+                  <div className="flex items-start gap-4">
+                    <PersonaImage type={t.slug} size="sm" ground={false} />
+                    <div className="min-w-0 flex-1">
+                      <div className="text-xl font-extrabold tracking-tight text-paper">
+                        {t.name}
+                      </div>
+                      <div className="mt-0.5 text-sm text-gold">
+                        {t.tagline}
+                      </div>
+                    </div>
                   </div>
-                  <div className="mt-0.5 text-sm text-gold">{t.tagline}</div>
                   <p className="mt-3 text-sm leading-relaxed text-muted">
                     {t.shortDescription}
                   </p>

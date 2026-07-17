@@ -184,22 +184,58 @@ export default function ExperimentTracker({
         <section className="space-y-4 border-t border-border pt-8">
           <div className="space-y-2">
             <Eyebrow>หลังจบ 7 วัน</Eyebrow>
-            <SectionTitle className="text-2xl">โปรแกรมต่อเนื่อง 30 วัน</SectionTitle>
+            <SectionTitle className="text-2xl">
+              โปรแกรมต่อเนื่อง 45 วัน
+            </SectionTitle>
             <p className="text-sm text-muted">
-              7 วันแรกคือการพิสูจน์ว่าทำได้จริง — 3 สัปดาห์ต่อไปคือการเปลี่ยนให้เป็นรายได้ที่อยู่ตัว
+              7 วันแรกคือการพิสูจน์ว่าทำได้จริง — สัปดาห์ต่อไปคือการเปลี่ยนให้เป็นรายได้ที่อยู่ตัวและวางระบบให้ไปต่อได้เอง
             </p>
           </div>
           <ol className="space-y-3">
             {continuation.map((phase, i) => (
               <li key={i}>
-                <Card className="space-y-3 p-5">
+                <Card
+                  glow={i === continuation.length - 1 ? "gold" : null}
+                  className="space-y-4 p-5"
+                >
                   <div className="flex flex-wrap items-baseline justify-between gap-2">
-                    <p className="font-semibold text-paper">{phase.title}</p>
+                    <p className="font-semibold text-paper">
+                      <span className="font-pixel mr-2 text-xs text-gold">
+                        {String(i + 1).padStart(2, "0")}
+                      </span>
+                      {phase.title}
+                    </p>
                     <span className="font-mono text-xs text-gold">
                       {phase.window}
                     </span>
                   </div>
                   <p className="text-sm text-paper/70">{phase.goal}</p>
+
+                  {phase.metric || phase.dailyFocus ? (
+                    <div className="grid gap-2 sm:grid-cols-2">
+                      {phase.metric ? (
+                        <div className="rounded-lg border border-border bg-ink/30 p-3">
+                          <p className="font-pixel text-[10px] uppercase tracking-widest text-muted">
+                            ตัวเลขที่ต้องจับตา
+                          </p>
+                          <p className="mt-1 text-sm text-gold">
+                            {phase.metric}
+                          </p>
+                        </div>
+                      ) : null}
+                      {phase.dailyFocus ? (
+                        <div className="rounded-lg border border-border bg-ink/30 p-3">
+                          <p className="font-pixel text-[10px] uppercase tracking-widest text-muted">
+                            โฟกัสรายวัน
+                          </p>
+                          <p className="mt-1 text-sm text-paper/80">
+                            {phase.dailyFocus}
+                          </p>
+                        </div>
+                      ) : null}
+                    </div>
+                  ) : null}
+
                   <ul className="space-y-2 text-sm leading-relaxed text-paper/80">
                     {phase.actions.map((a, j) => (
                       <li key={j} className="flex gap-2">
@@ -208,6 +244,31 @@ export default function ExperimentTracker({
                       </li>
                     ))}
                   </ul>
+
+                  {phase.successCriteria && phase.successCriteria.length > 0 ? (
+                    <div className="rounded-lg border border-gold/30 bg-gold/5 p-4">
+                      <p className="text-sm font-semibold text-gold">
+                        เกณฑ์ว่าสัปดาห์นี้สำเร็จ
+                      </p>
+                      <ul className="mt-2 space-y-1.5 text-sm text-paper/80">
+                        {phase.successCriteria.map((c, k) => (
+                          <li key={k} className="flex gap-2">
+                            <span className="mt-0.5 text-gold">✓</span>
+                            <span>{c}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ) : null}
+
+                  {phase.milestone ? (
+                    <p className="text-sm text-paper/90">
+                      <span className="font-semibold text-gold">
+                        เป้าหมายปลายทาง:{" "}
+                      </span>
+                      {phase.milestone}
+                    </p>
+                  ) : null}
                 </Card>
               </li>
             ))}
