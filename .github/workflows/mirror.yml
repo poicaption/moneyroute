@@ -20,10 +20,17 @@ jobs:
           # ไม่งั้นมันจะทับ MIRROR_TOKEN ใน URL แล้ว push ไป poicaption ไม่ได้
           persist-credentials: false
 
-      - name: Push to poicaption/moneyroute
+      - name: Push code (without workflows) to poicaption/moneyroute
         env:
           MIRROR_TOKEN: ${{ secrets.MIRROR_TOKEN }}
         run: |
+          git config user.name "mirror-bot"
+          git config user.email "mirror-bot@users.noreply.github.com"
+          # poicaption เป็นแค่ปลายทาง deploy ไม่ต้องมีไฟล์ workflow
+          # (เลี่ยงข้อจำกัด PAT ที่ต้องมี workflow scope)
+          rm -rf .github
+          git add -A
+          git commit --allow-empty -m "Mirror ${GITHUB_SHA} from facexerciseclinic-cloud/moneyroute"
           git push --force \
             "https://x-access-token:${MIRROR_TOKEN}@github.com/poicaption/moneyroute.git" \
             HEAD:main
