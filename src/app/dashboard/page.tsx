@@ -60,7 +60,7 @@ export default async function DashboardPage() {
       .from("assessment_sessions")
       .select("id, completed_at")
       .eq("user_id", user.id)
-      .eq("status", "completed")
+      .in("status", ["completed", "claimed"])
       .order("completed_at", { ascending: false });
 
     const ids = (sessionRows ?? []).map((s) => s.id as string);

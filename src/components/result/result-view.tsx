@@ -57,6 +57,11 @@ type State =
 
 export default function ResultView() {
   const [state, setState] = useState<State>({ status: "loading" });
+  const [access, setAccess] = useState<{
+    authenticated: boolean;
+    blueprint: boolean;
+    routeKit: boolean;
+  }>({ authenticated: false, blueprint: false, routeKit: false });
 
   useEffect(() => {
     let cancelled = false;
@@ -127,6 +132,22 @@ export default function ResultView() {
       });
     });
 
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  // Load the viewer's access flags so buyers don't see purchase prompts.
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/me/access")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (!cancelled && data) setAccess(data);
+      })
+      .catch(() => {
+        /* ignore — default to locked view */
+      });
     return () => {
       cancelled = true;
     };
@@ -241,39 +262,69 @@ export default function ResultView() {
 
         {/* Locked sections + CTA */}
         <section className="mt-12">
-          <Eyebrow>ปลดล็อกใน Income Blueprint ฉบับเต็ม</Eyebrow>
-          <div className="relative mt-5">
-            <div className="grid gap-3 sm:grid-cols-2">
-              {LOCKED_SECTIONS.map((s) => (
-                <div
-                  key={s}
-                  className="flex items-center gap-3 rounded-lg border border-border bg-surface/40 p-4 blur-[1.5px] select-none"
-                >
-                  <span className="text-muted">🔒</span>
-                  <span className="text-sm text-muted">{s}</span>
-                </div>
-              ))}
-            </div>
-            <div className="mt-8 rounded-xl border border-gold/40 bg-ink/60 p-6 text-center">
-              <SectionTitle className="mx-auto max-w-xl text-2xl sm:text-3xl">
-                ปลดล็อก Income Blueprint ฉบับเต็ม
+          {access.blueprint ? (
+            <div className="rounded-xl border border-gold/40 bg-ink/60 p-6 text-center">
+              <Eyebrow>คุณปลดล็อกแล้ว</Eyebrow>
+              <SectionTitle className="mx-auto mt-2 max-w-xl text-2xl sm:text-3xl">
+                เปิดรายงาน Income Blueprint ฉบับเต็ม
               </SectionTitle>
               <p className="mx-auto mt-3 max-w-lg text-sm text-muted">
-                รับเส้นทางที่เหมาะ 3 อันดับ เส้นทางที่ควรหลีกเลี่ยง ข้อเสนอแรก
-                แผนทดลอง 7 วัน และ Roadmap 30 วัน ที่ประกอบจากผลของคุณโดยเฉพาะ
+                คุณมีสิทธิ์เข้าถึงรายงานฉบับเต็ม เส้นทางอันดับ 2–3 แผนหาลูกค้า
+                แผนทดลอง 7 วัน และ Roadmap 30 วันแล้ว
               </p>
               <div className="mx-auto mt-6 max-w-xs">
-                <CheckoutButton
-                  productSlug="income_blueprint"
-                  sessionId={state.sessionId ?? undefined}
-                  variant="primary"
-                  size="lg"
-                >
-                  ปลดล็อก 390฿
-                </CheckoutButton>
+                {state.sessionId ? (
+                  <ButtonLink
+                    href={`/report/${state.sessionId}`}
+                    variant="gold"
+                    size="lg"
+                  >
+                    เปิดรายงานฉบับเต็ม
+                  </ButtonLink>
+                ) : (
+                  <ButtonLink href="/dashboard" variant="gold" size="lg">
+                    ไปที่แดชบอร์ด
+                  </ButtonLink>
+                )}
               </div>
             </div>
-          </div>
+          ) : (
+            <>
+              <Eyebrow>ปลดล็อกใน Income Blueprint ฉบับเต็ม</Eyebrow>
+              <div className="relative mt-5">
+                <div className="grid gap-3 sm:grid-cols-2">
+                  {LOCKED_SECTIONS.map((s) => (
+                    <div
+                      key={s}
+                      className="flex items-center gap-3 rounded-lg border border-border bg-surface/40 p-4 blur-[1.5px] select-none"
+                    >
+                      <span className="text-muted">🔒</span>
+                      <span className="text-sm text-muted">{s}</span>
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-8 rounded-xl border border-gold/40 bg-ink/60 p-6 text-center">
+                  <SectionTitle className="mx-auto max-w-xl text-2xl sm:text-3xl">
+                    ปลดล็อก Income Blueprint ฉบับเต็ม
+                  </SectionTitle>
+                  <p className="mx-auto mt-3 max-w-lg text-sm text-muted">
+                    รับเส้นทางที่เหมาะ 3 อันดับ เส้นทางที่ควรหลีกเลี่ยง ข้อเสนอแรก
+                    แผนทดลอง 7 วัน และ Roadmap 30 วัน ที่ประกอบจากผลของคุณโดยเฉพาะ
+                  </p>
+                  <div className="mx-auto mt-6 max-w-xs">
+                    <CheckoutButton
+                      productSlug="income_blueprint"
+                      sessionId={state.sessionId ?? undefined}
+                      variant="primary"
+                      size="lg"
+                    >
+                      ปลดล็อก 390฿
+                    </CheckoutButton>
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
         </section>
 
         {/* Anti-type note */}

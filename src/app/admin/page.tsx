@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { SiteFooter, SiteHeader } from "@/components/site/chrome";
 import { Card, Eyebrow, SectionTitle } from "@/components/ui/card";
 import AdminLogout from "@/components/admin/admin-logout";
+import AdminNav from "@/components/admin/admin-nav";
 import { isAdminAuthenticated } from "@/lib/admin/session";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
@@ -66,7 +67,7 @@ export default async function AdminPage() {
         admin
           .from("assessment_sessions")
           .select("id", { count: "exact", head: true })
-          .eq("status", "completed"),
+          .in("status", ["completed", "claimed"]),
         admin
           .from("orders")
           .select("id", { count: "exact", head: true })
@@ -120,12 +121,15 @@ export default async function AdminPage() {
     <div className="flex min-h-dvh flex-col">
       <SiteHeader />
       <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-12 sm:px-6 sm:py-16">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-wrap items-center justify-between gap-4">
           <div className="space-y-1">
             <Eyebrow>Admin</Eyebrow>
             <SectionTitle>ภาพรวมระบบ</SectionTitle>
           </div>
-          <AdminLogout />
+          <div className="flex items-center gap-3">
+            <AdminNav active="overview" />
+            <AdminLogout />
+          </div>
         </div>
 
         <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
