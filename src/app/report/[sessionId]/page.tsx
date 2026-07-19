@@ -4,6 +4,7 @@ import { SiteFooter, SiteHeader } from "@/components/site/chrome";
 import { Eyebrow } from "@/components/ui/card";
 import { ButtonLink } from "@/components/ui/button";
 import ReportView from "@/components/report/report-view";
+import BookRecommendations from "@/components/rootman/book-recommendations";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import {
@@ -30,10 +31,13 @@ export const runtime = "nodejs";
 
 export default async function ReportPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ sessionId: string }>;
+  searchParams: Promise<{ paid?: string }>;
 }) {
   const { sessionId } = await params;
+  const { paid } = await searchParams;
 
   const supabase = await createSupabaseServerClient();
   if (!supabase) notFound();
@@ -125,6 +129,17 @@ export default async function ReportPage({
     <div className="flex min-h-dvh flex-col">
       <SiteHeader />
       <main className="mx-auto w-full max-w-3xl flex-1 px-4 py-12 sm:px-6 sm:py-16">
+        {paid ? (
+          <div className="mb-10 rounded-xl border border-gold/50 bg-gold/10 p-5 text-center">
+            <p className="font-pixel text-sm uppercase tracking-widest text-gold text-3d">
+              ปลดล็อกสำเร็จ 🎉
+            </p>
+            <p className="mt-2 text-sm text-paper/85">
+              ขอบคุณที่ลงทุนกับตัวเอง — นี่คือแผนสร้างรายได้ฉบับเต็มของคุณ
+              เลื่อนอ่านได้เลย และอย่าลืมชุดหนังสือ Rootman ด้านล่างเพื่อลับคมต่อ
+            </p>
+          </div>
+        ) : null}
         <ReportView report={report} />
 
         {/* Next actions */}
@@ -154,10 +169,15 @@ export default async function ReportPage({
                 href={`/pricing?session=${sessionId}`}
                 variant="outline"
               >
-                ปลดล็อก Route Kit 590฿
+                ปลดล็อก Route Kit 299฿
               </ButtonLink>
             )}
           </div>
+        </section>
+
+        {/* Rootman book series — deepen the underlying skill */}
+        <section className="mt-16">
+          <BookRecommendations />
         </section>
       </main>
       <SiteFooter />

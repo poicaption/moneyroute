@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ASSESSMENT_VERSION } from "@/lib/domain/questions";
 import { MONEY_TYPES } from "@/lib/domain/money-types";
+import { resolveIdentity } from "@/lib/domain/identities";
 import { INCOME_ROUTES } from "@/lib/domain/income-routes";
 import type { ScoreSnapshot } from "@/lib/domain/scoring";
 import type { DimensionKey } from "@/lib/domain/dimensions";
@@ -186,8 +187,8 @@ export default function ResultView() {
 
   const { snapshot } = state;
   const primary = MONEY_TYPES[snapshot.primaryType];
-  const secondary = MONEY_TYPES[snapshot.secondaryType];
   const anti = MONEY_TYPES[snapshot.antiType];
+  const identity = resolveIdentity(snapshot.primaryType, snapshot.secondaryType);
   const topRoute = INCOME_ROUTES[snapshot.routeMatches[0].route];
   const topScore = snapshot.routeMatches[0].normalizedScore;
 
@@ -197,16 +198,20 @@ export default function ResultView() {
       <main className="mx-auto w-full max-w-4xl flex-1 px-4 py-12 sm:px-6">
         {/* Hero */}
         <section className="flex flex-col items-start gap-6 sm:flex-row sm:items-center">
-          <PersonaImage type={snapshot.primaryType} size="xl" priority />
+          <PersonaImage type={identity.baseType} size="xl" priority />
           <div>
-            <Eyebrow>Money Type ของคุณคือ</Eyebrow>
-            <h1 className="mt-4 text-4xl font-black tracking-tight text-paper sm:text-5xl">
-              {primary.name}
-              <span className="text-red"> – </span>
-              {secondary.name.replace("THE ", "")}
+            <Eyebrow>1 ใน 16 อัตลักษณ์ทางการเงิน</Eyebrow>
+            <p className="mt-3 font-pixel text-sm uppercase tracking-[0.2em] text-gold text-3d">
+              {identity.name}
+            </p>
+            <h1 className="mt-2 text-4xl font-black tracking-tight text-paper sm:text-5xl">
+              {identity.thaiName}
             </h1>
             <p className="mt-4 max-w-2xl text-lg text-muted">
-              {primary.shortDescription}
+              {identity.tagline}
+            </p>
+            <p className="mt-2 max-w-2xl text-sm italic text-paper/60">
+              “{identity.motto}”
             </p>
           </div>
         </section>
@@ -322,10 +327,45 @@ export default function ResultView() {
                       variant="primary"
                       size="lg"
                     >
-                      ปลดล็อก 390฿
+                      ปลดล็อก 199฿
                     </CheckoutButton>
                   </div>
+                  <p className="mx-auto mt-3 text-xs text-muted/70">
+                    <span className="text-muted line-through">ปกติ 390฿</span>{" "}
+                    · วันนี้เพียง 199฿
+                  </p>
                 </div>
+
+                {/* Bundle cross-sell: Route Kit includes Blueprint free */}
+                {!access.routeKit ? (
+                  <div className="mx-auto mt-6 max-w-xl rounded-xl border border-gold/50 bg-gradient-to-b from-gold/10 to-transparent p-6 text-center">
+                    <span className="inline-block rounded-full border border-gold/60 bg-gold/10 px-3 py-1 text-xs font-semibold uppercase tracking-widest text-gold">
+                      คุ้มที่สุด
+                    </span>
+                    <SectionTitle className="mx-auto mt-3 max-w-xl text-xl sm:text-2xl">
+                      อัปเป็น Route Kit — ได้ Income Blueprint ฟรีในตัว
+                    </SectionTitle>
+                    <p className="mx-auto mt-3 max-w-lg text-sm text-muted">
+                      จ่ายเพิ่มอีกแค่ 100฿ จาก 199฿ ก็ได้ทั้งชุดลงมือทำจริง —
+                      10 เส้นทางเจาะลึก + โปรแกรมทดลอง 45 วัน + Income Blueprint
+                      ฉบับเต็ม รวมอยู่ในนั้นแล้ว
+                    </p>
+                    <div className="mx-auto mt-5 max-w-xs">
+                      <CheckoutButton
+                        productSlug="route_kit"
+                        sessionId={state.sessionId ?? undefined}
+                        variant="gold"
+                        size="lg"
+                      >
+                        รับ Route Kit 299฿ (รวม Blueprint)
+                      </CheckoutButton>
+                    </div>
+                    <p className="mx-auto mt-3 text-xs text-muted/70">
+                      <span className="text-muted line-through">มูลค่ารวม 589฿</span>{" "}
+                      · จ่ายครั้งเดียว 299฿
+                    </p>
+                  </div>
+                ) : null}
               </div>
             </>
           )}

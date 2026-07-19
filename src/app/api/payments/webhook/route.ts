@@ -1,7 +1,11 @@
 import { NextResponse } from "next/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { getPaymentProvider } from "@/lib/payments/stripe";
-import { grantEntitlement } from "@/lib/persistence/entitlements";
+import {
+  grantEntitlement,
+  INCOME_BLUEPRINT_KEY,
+  ROUTE_KIT_KEY,
+} from "@/lib/persistence/entitlements";
 
 export const runtime = "nodejs";
 
@@ -62,11 +66,22 @@ export async function POST(request: Request) {
 
   // Grant the entitlement (idempotent by source order). Runs even if the order
   // was already marked paid on a redelivered event.
+  const grantUserId = order?.user_id ?? userId;
   await grantEntitlement(admin, {
-    userId: order?.user_id ?? userId,
+    userId: grantUserId,
     entitlementKey,
     sourceOrderId: orderId,
   });
+
+  // Bundle: buying the Route Kit also unlocks the Income Blueprint for free.
+  // Idempotent — grantEntitlement de-dupes by (source_order_id, entitlement_key).
+  if (entitlementKey === ROUTE_KIT_KEY) {
+    await grantEntitlement(admin, {
+      userId: grantUserId,
+      entitlementKey: INCOME_BLUEPRINT_KEY,
+      sourceOrderId: orderId,
+    });
+  }
 
   return NextResponse.json({ received: true });
 }

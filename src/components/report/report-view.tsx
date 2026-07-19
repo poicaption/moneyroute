@@ -45,9 +45,53 @@ function speedLabel(speed: "fast" | "medium" | "slow"): string {
 }
 
 export default function ReportView({ report }: { report: Report }) {
-  const { executiveDiagnosis: diag } = report;
+  const { executiveDiagnosis: diag, identity } = report;
   return (
     <div className="space-y-16">
+      {/* 0. Identity headline (1 of 16) */}
+      <Section eyebrow="อัตลักษณ์ทางการเงินของคุณ" title={identity.thaiName}>
+        <Card glow="gold" className="space-y-6 p-6 sm:p-8">
+          <div className="flex flex-col items-start gap-5 sm:flex-row sm:items-center">
+            <PersonaImage
+              type={identity.baseType as MoneyTypeKey}
+              size="lg"
+            />
+            <div className="space-y-2">
+              <p className="font-pixel text-xl uppercase tracking-widest text-gold text-3d">
+                {identity.name}
+              </p>
+              <p className="font-mono text-sm uppercase tracking-widest text-paper/70">
+                {identity.tagline}
+              </p>
+              <p className="text-sm italic text-paper/60">“{identity.motto}”</p>
+            </div>
+          </div>
+          <p className="leading-relaxed text-paper/90">{identity.essence}</p>
+          <div className="rounded-lg border border-gold/30 bg-gold/5 p-4">
+            <p className="text-xs uppercase tracking-widest text-muted">
+              แรงขับหลัก
+            </p>
+            <p className="mt-1 leading-relaxed text-paper/85">
+              {identity.coreDrive}
+            </p>
+          </div>
+          <div className="grid gap-6 sm:grid-cols-2">
+            <div className="space-y-2">
+              <h3 className="font-semibold text-gold">พลังพิเศษของคุณ</h3>
+              <Bullets items={identity.superpowers} />
+            </div>
+            <div className="space-y-2">
+              <h3 className="font-semibold text-brand">สิ่งที่ต้องระวัง</h3>
+              <Bullets items={identity.watchouts} />
+            </div>
+          </div>
+          <div className="border-t border-border pt-4 text-sm text-paper/80">
+            <span className="font-semibold text-gold">ทำงานเข้าขากับ: </span>
+            {identity.pairsWith}
+          </div>
+        </Card>
+      </Section>
+
       {/* 1. Executive Diagnosis */}
       <Section eyebrow="รายงานฉบับเต็ม" title="สรุปวินิจฉัย">
         <Card glow="gold" className="space-y-5 p-6 sm:p-8">

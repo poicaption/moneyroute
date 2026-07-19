@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import { SiteFooter, SiteHeader } from "@/components/site/chrome";
 import RouteKitView from "@/components/route-kit/route-kit-view";
+import BookRecommendations from "@/components/rootman/book-recommendations";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { hasEntitlement, ROUTE_KIT_KEY } from "@/lib/persistence/entitlements";
@@ -63,6 +64,9 @@ export default async function RouteKitPage({
           routeName={INCOME_ROUTES[routeKey].name}
           profile={profile}
         />
+        <section className="mt-16">
+          <BookRecommendations />
+        </section>
       </main>
       <SiteFooter />
     </div>

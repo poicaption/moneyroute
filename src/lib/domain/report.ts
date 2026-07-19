@@ -13,6 +13,7 @@ import {
 } from "./dimensions";
 import { MONEY_TYPES } from "./money-types";
 import { INCOME_ROUTES, type RouteKey } from "./income-routes";
+import { resolveIdentity } from "./identities";
 import { ROUTE_CONTENT } from "./report-content";
 import type { ScoreSnapshot, RouteMatch } from "./scoring";
 import {
@@ -30,7 +31,7 @@ import {
 
 export const REPORT_VERSION = "report-v1";
 /** Content template version — bump when template content changes. */
-export const TEMPLATE_VERSION = "template-v2";
+export const TEMPLATE_VERSION = "template-v3";
 
 /** Human-readable labels for constraint flags used in penalties/diagnosis. */
 const FLAG_LABELS: Record<string, string> = {
@@ -81,6 +82,20 @@ export const ReportSchema = z.object({
   templateVersion: z.string(),
   scoringVersion: z.string(),
   assessmentVersion: z.string(),
+  identity: z.object({
+    slug: z.string(),
+    name: z.string(),
+    thaiName: z.string(),
+    baseType: z.string(),
+    tagline: z.string(),
+    essence: z.string(),
+    coreDrive: z.string(),
+    superpowers: z.array(z.string()),
+    watchouts: z.array(z.string()),
+    idealRoutes: z.array(z.string()),
+    pairsWith: z.string(),
+    motto: z.string(),
+  }),
   executiveDiagnosis: z.object({
     whoYouAre: z.string(),
     edges: z.array(z.string()),
@@ -328,6 +343,7 @@ export function buildReport(
 
   const primaryType = MONEY_TYPES[snapshot.primaryType];
   const antiTypeMoney = MONEY_TYPES[snapshot.antiType];
+  const identity = resolveIdentity(snapshot.primaryType, snapshot.secondaryType);
 
   // Diagnosis: top/bottom dimensions + type traits + constraints.
   const dims = sortedDimensions(snapshot);
@@ -403,6 +419,20 @@ export function buildReport(
     templateVersion: TEMPLATE_VERSION,
     scoringVersion: snapshot.scoringVersion,
     assessmentVersion: snapshot.assessmentVersion,
+    identity: {
+      slug: identity.slug,
+      name: identity.name,
+      thaiName: identity.thaiName,
+      baseType: identity.baseType,
+      tagline: identity.tagline,
+      essence: identity.essence,
+      coreDrive: identity.coreDrive,
+      superpowers: identity.superpowers,
+      watchouts: identity.watchouts,
+      idealRoutes: identity.idealRoutes,
+      pairsWith: identity.pairsWith,
+      motto: identity.motto,
+    },
     executiveDiagnosis: {
       whoYouAre: `ในเกมเงิน คุณคือ ${primaryType.name} — ${primaryType.tagline}. ${primaryType.shortDescription}`,
       edges,

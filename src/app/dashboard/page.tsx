@@ -13,7 +13,8 @@ import {
 } from "@/lib/persistence/entitlements";
 import { getExperiment } from "@/lib/persistence/experiments";
 import { getPersonalization } from "@/lib/persistence/personalization";
-import { MONEY_TYPES, type MoneyTypeKey } from "@/lib/domain/money-types";
+import { type MoneyTypeKey } from "@/lib/domain/money-types";
+import { resolveIdentity } from "@/lib/domain/identities";
 import PersonaImage from "@/components/persona/persona-image";
 import { INCOME_ROUTES, type RouteKey } from "@/lib/domain/income-routes";
 import type { RouteMatch } from "@/lib/domain/scoring";
@@ -27,6 +28,7 @@ export const runtime = "nodejs";
 
 type LatestSnapshot = {
   primaryType: MoneyTypeKey;
+  secondaryType: MoneyTypeKey;
   primaryRoute: RouteKey;
   cashflowRoute: RouteKey;
   assetRoute: RouteKey;
@@ -88,7 +90,7 @@ export default async function DashboardPage() {
     if (ids.length > 0) {
       const { data: snap } = await admin
         .from("score_snapshots")
-        .select("primary_type, route_scores, cashflow_route, asset_route")
+        .select("primary_type, secondary_type, route_scores, cashflow_route, asset_route")
         .eq("session_id", ids[0])
         .maybeSingle();
 
@@ -97,6 +99,8 @@ export default async function DashboardPage() {
         const top = matches[0];
         latest = {
           primaryType: snap.primary_type as MoneyTypeKey,
+          secondaryType: (snap.secondary_type ??
+            snap.primary_type) as MoneyTypeKey,
           primaryRoute: (top?.route ??
             (snap.cashflow_route as RouteKey)) as RouteKey,
           cashflowRoute: snap.cashflow_route as RouteKey,
@@ -185,24 +189,35 @@ export default async function DashboardPage() {
             {/* Headline result */}
             <div className="mt-8 grid gap-6 sm:grid-cols-2">
               <Card glow="gold" className="space-y-3 p-6">
-                <Eyebrow>Money Type ของคุณ</Eyebrow>
+                <Eyebrow>อัตลักษณ์ของคุณ</Eyebrow>
                 {latest ? (
-                  <>
-                    <div className="flex items-center gap-4">
-                      <PersonaImage type={latest.primaryType} size="md" />
-                      <div>
-                        <h2 className="text-2xl font-extrabold text-paper">
-                          {MONEY_TYPES[latest.primaryType].name}
-                        </h2>
-                        <p className="font-mono text-xs uppercase tracking-widest text-gold">
-                          {MONEY_TYPES[latest.primaryType].tagline}
+                  (() => {
+                    const identity = resolveIdentity(
+                      latest.primaryType,
+                      latest.secondaryType,
+                    );
+                    return (
+                      <>
+                        <div className="flex items-center gap-4">
+                          <PersonaImage type={identity.baseType} size="md" />
+                          <div>
+                            <p className="font-pixel text-xs uppercase tracking-[0.2em] text-gold">
+                              {identity.name}
+                            </p>
+                            <h2 className="text-2xl font-extrabold text-paper">
+                              {identity.thaiName}
+                            </h2>
+                            <p className="font-mono text-xs uppercase tracking-widest text-gold">
+                              {identity.tagline}
+                            </p>
+                          </div>
+                        </div>
+                        <p className="text-sm leading-relaxed text-paper/80">
+                          {identity.essence}
                         </p>
-                      </div>
-                    </div>
-                    <p className="text-sm leading-relaxed text-paper/80">
-                      {MONEY_TYPES[latest.primaryType].shortDescription}
-                    </p>
-                  </>
+                      </>
+                    );
+                  })()
                 ) : (
                   <p className="text-sm text-muted">ยังไม่มีข้อมูลผลวิเคราะห์</p>
                 )}
@@ -296,7 +311,7 @@ export default async function DashboardPage() {
                     }
                     variant="gold"
                   >
-                    ปลดล็อก 390฿
+                    ปลดล็อก 199฿
                   </ButtonLink>
                 )}
               </div>
@@ -360,7 +375,7 @@ export default async function DashboardPage() {
                 <p className="text-sm text-muted">
                   {entitledKit
                     ? "เทมเพลตข้อความ เช็กลิสต์ แนวทางตั้งราคา และจังหวะรายสัปดาห์"
-                    : "เทมเพลตพร้อมใช้ + เช็กลิสต์ + แนวทางตั้งราคาเฉพาะเส้นทางของคุณ"}
+                    : "จ่ายครั้งเดียว ได้ทั้งเครื่องมือลงมือ + Income Blueprint ฉบับเต็มฟรี"}
                 </p>
               </div>
               <div className="shrink-0">
@@ -380,7 +395,7 @@ export default async function DashboardPage() {
                     }
                     variant="outline"
                   >
-                    ปลดล็อก 590฿
+                    ปลดล็อก 299฿ (รวม Blueprint)
                   </ButtonLink>
                 )}
               </div>
