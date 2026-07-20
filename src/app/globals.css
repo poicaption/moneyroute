@@ -143,6 +143,112 @@ body {
   border-color: color-mix(in srgb, var(--color-gold) 35%, transparent);
 }
 
+/* ── Assessment motion kit ──────────────────────────────────────────────── */
+
+/* Fade + rise in. Pair with inline animation-delay for staggered reveals. */
+@keyframes rmr-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.rmr-fade-up {
+  animation: rmr-fade-up 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Springy pop-in for headline cards and CTAs. */
+@keyframes rmr-pop-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+  60% {
+    transform: scale(1.02);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+.rmr-pop-in {
+  animation: rmr-pop-in 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Attention-grabbing pulse ring for the primary CTA. */
+@keyframes rmr-cta-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(194, 59, 34, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 0 16px rgba(194, 59, 34, 0);
+  }
+}
+.rmr-cta-pulse {
+  animation: rmr-cta-pulse 2.2s ease-out infinite;
+}
+
+/* Animated gradient text for the hook headline. */
+@keyframes rmr-shimmer {
+  to {
+    background-position: 200% center;
+  }
+}
+.rmr-shimmer-text {
+  background: linear-gradient(
+    90deg,
+    var(--color-paper) 0%,
+    var(--color-gold-soft) 25%,
+    var(--color-red-soft) 50%,
+    var(--color-gold-soft) 75%,
+    var(--color-paper) 100%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: rmr-shimmer 5s linear infinite;
+}
+
+/* Analyzing spinner used on the completion screen. */
+@keyframes rmr-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.rmr-spin {
+  animation: rmr-spin 1s linear infinite;
+}
+
+/* Slow drifting glow blobs behind the intro. */
+@keyframes rmr-drift {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(0, -24px, 0) scale(1.08);
+  }
+}
+.rmr-drift {
+  animation: rmr-drift 9s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rmr-fade-up,
+  .rmr-pop-in,
+  .rmr-cta-pulse,
+  .rmr-shimmer-text,
+  .rmr-spin,
+  .rmr-drift {
+    animation: none;
+  }
+}
+
 /* Focus ring consistent with brand */
 :where(a, button, input, select, textarea, [tabindex]):focus-visible {
   outline: 2px solid var(--color-gold-soft);

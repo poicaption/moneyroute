@@ -6,10 +6,12 @@ import Link from "next/link";
 import { QUESTIONS, ASSESSMENT_VERSION } from "@/lib/domain/questions";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import PersonaImage from "@/components/persona/persona-image";
 
 const STORAGE_KEY = `rmr_answers_${ASSESSMENT_VERSION}`;
 
 type Answers = Record<string, string>;
+type Phase = "intro" | "quiz" | "analyzing";
 
 /**
  * Chapters split the assessment into themed acts so the test feels like a
@@ -76,12 +78,22 @@ function milestoneCopy(progress: number): string {
 
 const OPTION_LETTERS = ["A", "B", "C", "D", "E", "F"];
 
+/** Rotating status lines shown on the analyzing screen. */
+const ANALYZING_STEPS = [
+  "กำลังอ่านสัญชาตญาณการทำเงินของคุณ…",
+  "จับคู่จุดแข็งหลักและจุดแข็งรอง…",
+  "คัดเส้นทางสร้างรายได้ที่เหมาะกับคุณ…",
+  "ประกอบร่างอัตลักษณ์ทางการเงินของคุณ…",
+];
+
 export default function AssessmentFlow() {
   const router = useRouter();
+  const [phase, setPhase] = useState<Phase>("intro");
   const [answers, setAnswers] = useState<Answers>({});
   const [index, setIndex] = useState(0);
   const [loaded, setLoaded] = useState(false);
   const [entered, setEntered] = useState(false);
+  const [analyzeStep, setAnalyzeStep] = useState(0);
 
   // Restore saved progress.
   useEffect(() => {
@@ -119,6 +131,19 @@ export default function AssessmentFlow() {
     return () => cancelAnimationFrame(raf);
   }, [index]);
 
+  // Cycle through analyzing messages before redirecting to the result.
+  useEffect(() => {
+    if (phase !== "analyzing") return;
+    const stepTimer = setInterval(() => {
+      setAnalyzeStep((s) => Math.min(s + 1, ANALYZING_STEPS.length - 1));
+    }, 700);
+    const done = setTimeout(() => router.push("/result"), 2600);
+    return () => {
+      clearInterval(stepTimer);
+      clearTimeout(done);
+    };
+  }, [phase, router]);
+
   const total = QUESTIONS.length;
   const question = QUESTIONS[index];
   const answeredCount = useMemo(
@@ -128,6 +153,7 @@ export default function AssessmentFlow() {
   const progress = Math.round((answeredCount / total) * 100);
   const { chapter, number: chapterNumber } = chapterAt(index);
   const remaining = total - index - 1;
+  const hasProgress = answeredCount > 0 && answeredCount < total;
 
   function select(optCode: string) {
     const next = { ...answers, [question.code]: optCode };
@@ -141,7 +167,8 @@ export default function AssessmentFlow() {
 
   function finish(final: Answers) {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(final));
-    router.push("/result");
+    setAnalyzeStep(0);
+    setPhase("analyzing");
   }
 
   if (!loaded) {
@@ -152,6 +179,164 @@ export default function AssessmentFlow() {
     );
   }
 
+  // ── Analyzing screen ───────────────────────────────────────────
+  if (phase === "analyzing") {
+    return (
+      <div className="relative flex flex-1 flex-col items-center justify-center overflow-hidden px-6 py-24 text-center">
+        <div
+          aria-hidden
+          className="rmr-drift pointer-events-none absolute -top-10 h-72 w-72 rounded-full bg-red/20 blur-3xl"
+        />
+        <div className="relative">
+          <div className="rmr-spin h-24 w-24 rounded-full border-4 border-gold/20 border-t-gold" />
+          <div className="absolute inset-0 flex items-center justify-center">
+            <span className="font-pixel text-lg text-gold text-3d">RMR</span>
+          </div>
+        </div>
+        <p className="rmr-pop-in mt-8 font-pixel text-sm uppercase tracking-[0.25em] text-gold">
+          ANALYZING
+        </p>
+        <p key={analyzeStep} className="rmr-fade-up mt-3 text-lg text-paper">
+          {ANALYZING_STEPS[analyzeStep]}
+        </p>
+        <div className="mt-6 flex gap-2">
+          {ANALYZING_STEPS.map((_, i) => (
+            <span
+              key={i}
+              className={cn(
+                "h-1.5 w-8 rounded-full transition-colors duration-300",
+                i <= analyzeStep ? "bg-gold" : "bg-surface-2",
+              )}
+            />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  // ── Intro / hook screen ────────────────────────────────────
+  if (phase === "intro") {
+    return (
+      <div className="relative flex flex-1 flex-col overflow-hidden">
+        {/* Ambient glow blobs */}
+        <div
+          aria-hidden
+          className="rmr-drift pointer-events-none absolute -right-16 top-0 h-80 w-80 rounded-full bg-red/15 blur-3xl"
+        />
+        <div
+          aria-hidden
+          className="rmr-drift pointer-events-none absolute -left-16 bottom-0 h-72 w-72 rounded-full bg-gold/10 blur-3xl"
+          style={{ animationDelay: "1.5s" }}
+        />
+
+        <div className="relative mx-auto flex w-full max-w-2xl flex-1 flex-col items-center px-4 py-12 text-center sm:px-6 sm:py-16">
+          {/* Floating persona cluster */}
+          <div className="rmr-pop-in relative flex items-end justify-center gap-2">
+            <PersonaImage type="creator" size="md" className="opacity-90" />
+            <PersonaImage type="hunter" size="lg" priority />
+            <PersonaImage type="builder" size="md" className="opacity-90" />
+          </div>
+
+          <p
+            className="rmr-fade-up mt-8 font-pixel text-xs uppercase tracking-[0.3em] text-gold"
+            style={{ animationDelay: "80ms" }}
+          >
+            MONEY SCAN · แบบทดสอบ 3 นาที
+          </p>
+
+          <h1
+            className="rmr-fade-up mt-4 text-3xl font-black leading-tight tracking-tight sm:text-5xl"
+            style={{ animationDelay: "160ms" }}
+          >
+            <span className="rmr-shimmer-text">ทำไมบางคนหาเงินง่าย</span>
+            <br />
+            <span className="text-paper">แต่คุณยังเหนื่อยอยู่?</span>
+          </h1>
+
+          <p
+            className="rmr-fade-up mt-5 max-w-xl text-base leading-relaxed text-muted sm:text-lg"
+            style={{ animationDelay: "240ms" }}
+          >
+            ไม่ใช่เพราะคุณเก่งน้อยกว่าใคร — แต่เพราะคุณยังฝืนเดินใน
+            <span className="text-paper"> เส้นทางที่ไม่ใช่ของคุณ</span>{" "}
+            แบบทดสอบนี้จะสแกนสัญชาตญาณการทำเงินของคุณ แล้วบอกว่าคุณคือ
+            <span className="text-gold"> 1 ใน 16 อัตลักษณ์ทางการเงิน</span>{" "}
+            แบบไหน พร้อมเส้นทางสร้างรายได้ที่ “ใช่” สำหรับคุณ
+          </p>
+
+          {/* Benefit chips */}
+          <div
+            className="rmr-fade-up mt-6 flex flex-wrap items-center justify-center gap-2"
+            style={{ animationDelay: "320ms" }}
+          >
+            {["48 ข้อ", "~3 นาที", "ฟรี 100%", "ไม่มีถูก-ผิด"].map((chip) => (
+              <span
+                key={chip}
+                className="rounded-full border border-gold/30 bg-gold/5 px-3 py-1 text-xs font-medium text-gold"
+              >
+                {chip}
+              </span>
+            ))}
+          </div>
+
+          {/* Value bullets */}
+          <div
+            className="rmr-fade-up mt-8 grid w-full max-w-lg gap-3 text-left"
+            style={{ animationDelay: "400ms" }}
+          >
+            {[
+              "รู้จุดแข็งที่ทำเงินได้จริงของคุณภายใน 3 นาที",
+              "เลิกลองผิดลองถูก — เห็นเส้นทางที่เหมาะกับตัวตน",
+              "เริ่มได้ทันที ไม่ต้องสมัคร ไม่ต้องกรอกอะไร",
+            ].map((line) => (
+              <div
+                key={line}
+                className="pixel-3d flex items-center gap-3 rounded-xl border border-border bg-surface/60 p-3"
+              >
+                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-gold/20 text-xs text-gold">
+                  ✓
+                </span>
+                <span className="text-sm text-paper/90">{line}</span>
+              </div>
+            ))}
+          </div>
+
+          {/* CTA */}
+          <div
+            className="rmr-fade-up mt-10 flex w-full max-w-sm flex-col items-center gap-3"
+            style={{ animationDelay: "480ms" }}
+          >
+            <Button
+              variant="primary"
+              size="lg"
+              className="rmr-cta-pulse w-full text-base"
+              onClick={() => {
+                if (hasProgress) {
+                  setIndex(QUESTIONS.findIndex((q) => !answers[q.code]));
+                }
+                setPhase("quiz");
+              }}
+            >
+              {hasProgress
+                ? `ทำแบบทดสอบต่อ (${answeredCount}/${total})`
+                : "เริ่มสแกนตัวตนของฉัน →"}
+            </Button>
+            <p className="text-xs text-muted/80">
+              ตอบตามสัญชาตญาณ ไม่ต้องคิดเยอะ ผลลัพธ์จะแม่นที่สุด
+            </p>
+            <Link
+              href="/"
+              className="text-xs text-muted/60 underline-offset-4 hover:text-paper hover:underline"
+            >
+              ← กลับหน้าแรก
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ── Quiz screen ────────────────────────────────────────────
   const allAnswered = answeredCount === total;
 
   return (
@@ -159,9 +344,13 @@ export default function AssessmentFlow() {
       {/* Progress + chapter meta */}
       <div className="mb-8">
         <div className="mb-3 flex items-center justify-between text-xs text-muted">
-          <Link href="/" className="hover:text-paper">
+          <button
+            type="button"
+            onClick={() => setPhase("intro")}
+            className="hover:text-paper"
+          >
             ← ออก
-          </Link>
+          </button>
           <span className="font-pixel uppercase tracking-[0.2em] text-gold">
             {chapter.badge} · บทที่ {chapterNumber}/{CHAPTERS.length}
           </span>
