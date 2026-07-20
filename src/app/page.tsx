@@ -76,14 +76,14 @@ export default function Home() {
             </div>
             {/* Floating 3D persona cluster */}
             <div className="relative hidden h-[340px] lg:block">
-              <div className="absolute left-1/2 top-2 -translate-x-1/2">
-                <PersonaImage type="hunter" size="xl" priority />
+              <div className="absolute left-1/2 top-0 z-10 -translate-x-1/2">
+                <PersonaImage type="hunter" size="xl" zoom={1.2} priority />
               </div>
-              <div className="absolute -left-2 top-32">
-                <PersonaImage type="creator" size="md" />
+              <div className="absolute left-10 top-40">
+                <PersonaImage type="creator" size="md" zoom={1.2} />
               </div>
-              <div className="absolute right-0 top-40">
-                <PersonaImage type="builder" size="md" />
+              <div className="absolute right-10 top-44">
+                <PersonaImage type="builder" size="md" zoom={1.2} />
               </div>
             </div>
           </div>
@@ -172,7 +172,8 @@ export default function Home() {
                   <IdentityImage
                     slug={id.slug}
                     baseType={id.baseType}
-                    size="sm"
+                    size="md"
+                    zoom={1.2}
                     ground={false}
                   />
                   <div className="mt-3 font-pixel text-[11px] uppercase tracking-widest text-gold">

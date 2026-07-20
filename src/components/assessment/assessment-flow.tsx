@@ -231,10 +231,20 @@ export default function AssessmentFlow() {
 
         <div className="relative mx-auto flex w-full max-w-2xl flex-1 flex-col items-center px-4 py-12 text-center sm:px-6 sm:py-16">
           {/* Floating persona cluster */}
-          <div className="rmr-pop-in relative flex items-end justify-center gap-2">
-            <PersonaImage type="creator" size="md" className="opacity-90" />
-            <PersonaImage type="hunter" size="lg" priority />
-            <PersonaImage type="builder" size="md" className="opacity-90" />
+          <div className="rmr-pop-in relative flex items-end justify-center">
+            <PersonaImage
+              type="creator"
+              size="md"
+              zoom={1.3}
+              className="-mr-8 opacity-90 sm:-mr-10"
+            />
+            <PersonaImage type="hunter" size="lg" zoom={1.3} priority className="z-10" />
+            <PersonaImage
+              type="builder"
+              size="md"
+              zoom={1.3}
+              className="-ml-8 opacity-90 sm:-ml-10"
+            />
           </div>
 
           <p

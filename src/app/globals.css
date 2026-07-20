@@ -5,25 +5,25 @@
  * Dark editorial / premium business intelligence theme.
  */
 @theme {
-  /* Brand palette */
-  --color-bg: #1a1714;
-  --color-ink: #0b0a09;
-  --color-red: #c23b22;
-  --color-red-soft: #d9573f;
-  --color-gold: #b8860b;
-  --color-gold-soft: #d4a017;
-  --color-tan: #c4956a;
-  --color-paper: #f4efe8;
-  --color-muted: #aaa29a;
+  /* Brand palette — brightened warm editorial (lifted from near-black). */
+  --color-bg: #2b2621;
+  --color-ink: #17130f;
+  --color-red: #d1442a;
+  --color-red-soft: #e6604a;
+  --color-gold: #cf9615;
+  --color-gold-soft: #eab52a;
+  --color-tan: #d6a878;
+  --color-paper: #faf6f0;
+  --color-muted: #c8bdb0;
 
-  --color-success: #5c7a5c;
-  --color-warning: #d4a017;
-  --color-error: #a12d1a;
+  --color-success: #6f9268;
+  --color-warning: #e0b02a;
+  --color-error: #c2452c;
 
-  /* Surfaces */
-  --color-surface: #221e1a;
-  --color-surface-2: #2b2621;
-  --color-border: #3a332c;
+  /* Surfaces — clearer elevation steps for stronger contrast. */
+  --color-surface: #3a332c;
+  --color-surface-2: #4a4038;
+  --color-border: #5c5044;
 
   /* Fonts */
   --font-sans: var(--font-prompt), ui-sans-serif, system-ui, sans-serif;
@@ -49,16 +49,16 @@ body {
   background-image:
     radial-gradient(
       1200px 600px at 100% -10%,
-      rgba(194, 59, 34, 0.08),
+      rgba(209, 68, 42, 0.13),
       transparent 60%
     ),
     radial-gradient(
       900px 500px at -10% 10%,
-      rgba(184, 134, 11, 0.06),
+      rgba(207, 150, 21, 0.1),
       transparent 55%
     ),
-    linear-gradient(rgba(180, 134, 11, 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(180, 134, 11, 0.03) 1px, transparent 1px);
+    linear-gradient(rgba(207, 150, 21, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(207, 150, 21, 0.045) 1px, transparent 1px);
   background-size:
     100% 100%,
     100% 100%,

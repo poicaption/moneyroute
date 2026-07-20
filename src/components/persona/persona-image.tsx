@@ -42,11 +42,17 @@ const SIZES = {
 
 type PersonaSize = keyof typeof SIZES;
 
-/** Shared floating-art renderer used by both persona and identity artwork. */
+/**
+ * The source PNGs include transparent padding around each character, which
+ * makes neighbouring art look further apart than it is. `zoom` scales the art
+ * inside its box (via a wrapper so it composes with the float animation) to
+ * visually trim that padding. Defaults to a gentle 1.12.
+ */
 function FloatingArt({
   src,
   alt,
   size = "md",
+  zoom = 1.12,
   className,
   priority = false,
   float = true,
@@ -55,6 +61,7 @@ function FloatingArt({
   src: string;
   alt: string;
   size?: PersonaSize;
+  zoom?: number;
   className?: string;
   priority?: boolean;
   float?: boolean;
@@ -66,18 +73,23 @@ function FloatingArt({
       className={cn("relative shrink-0", className)}
       style={{ width: px, height: px }}
     >
-      <Image
-        src={src}
-        alt={alt}
-        width={px}
-        height={px}
-        priority={priority}
-        className={cn(
-          "relative z-10 h-full w-full object-contain",
-          float && "persona-float",
-        )}
-        sizes={`${px}px`}
-      />
+      <div
+        className="relative z-10 h-full w-full"
+        style={{ transform: `scale(${zoom})` }}
+      >
+        <Image
+          src={src}
+          alt={alt}
+          width={px}
+          height={px}
+          priority={priority}
+          className={cn(
+            "h-full w-full object-contain",
+            float && "persona-float",
+          )}
+          sizes={`${px}px`}
+        />
+      </div>
       {ground ? (
         <div
           aria-hidden
@@ -96,6 +108,7 @@ function FloatingArt({
 export default function PersonaImage({
   type,
   size = "md",
+  zoom,
   className,
   priority = false,
   float = true,
@@ -103,6 +116,7 @@ export default function PersonaImage({
 }: {
   type: MoneyTypeKey;
   size?: PersonaSize;
+  zoom?: number;
   className?: string;
   priority?: boolean;
   float?: boolean;
@@ -113,6 +127,7 @@ export default function PersonaImage({
       src={PERSONA_IMAGES[type]}
       alt={`ตัวละคร ${type}`}
       size={size}
+      zoom={zoom}
       className={className}
       priority={priority}
       float={float}
@@ -130,6 +145,7 @@ export function IdentityImage({
   slug,
   baseType,
   size = "md",
+  zoom,
   className,
   priority = false,
   float = true,
@@ -138,6 +154,7 @@ export function IdentityImage({
   slug: string;
   baseType: MoneyTypeKey;
   size?: PersonaSize;
+  zoom?: number;
   className?: string;
   priority?: boolean;
   float?: boolean;
@@ -150,6 +167,7 @@ export function IdentityImage({
       src={src}
       alt={`อัตลักษณ์ ${slug}`}
       size={size}
+      zoom={zoom}
       className={className}
       priority={priority}
       float={float}
