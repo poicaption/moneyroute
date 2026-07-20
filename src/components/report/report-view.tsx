@@ -1,5 +1,7 @@
 import { Card, Eyebrow, SectionTitle } from "@/components/ui/card";
-import PersonaImage from "@/components/persona/persona-image";
+import PersonaImage, {
+  IdentityImage,
+} from "@/components/persona/persona-image";
 import type { MoneyTypeKey } from "@/lib/domain/money-types";
 import type { Report } from "@/lib/domain/report";
 
@@ -52,8 +54,9 @@ export default function ReportView({ report }: { report: Report }) {
       <Section eyebrow="อัตลักษณ์ทางการเงินของคุณ" title={identity.thaiName}>
         <Card glow="gold" className="space-y-6 p-6 sm:p-8">
           <div className="flex flex-col items-start gap-5 sm:flex-row sm:items-center">
-            <PersonaImage
-              type={identity.baseType as MoneyTypeKey}
+            <IdentityImage
+              slug={identity.slug}
+              baseType={identity.baseType as MoneyTypeKey}
               size="lg"
             />
             <div className="space-y-2">

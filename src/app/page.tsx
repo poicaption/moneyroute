@@ -3,7 +3,9 @@ import { Card, Eyebrow, SectionTitle } from "@/components/ui/card";
 import { SiteFooter, SiteHeader } from "@/components/site/chrome";
 import { MONEY_TYPE_LIST } from "@/lib/domain/money-types";
 import { IDENTITY_LIST } from "@/lib/domain/identities";
-import PersonaImage from "@/components/persona/persona-image";
+import PersonaImage, {
+  IdentityImage,
+} from "@/components/persona/persona-image";
 
 const HOW_IT_WORKS = [
   { step: "01", title: "Scan", desc: "ตอบคำถามเกี่ยวกับตัวตนและทรัพยากรของคุณ" },
@@ -167,7 +169,12 @@ export default function Home() {
             {IDENTITY_LIST.map((id) => (
               <Card key={id.slug} className="p-5" glow="gold">
                 <div className="flex flex-col items-center text-center">
-                  <PersonaImage type={id.baseType} size="sm" ground={false} />
+                  <IdentityImage
+                    slug={id.slug}
+                    baseType={id.baseType}
+                    size="sm"
+                    ground={false}
+                  />
                   <div className="mt-3 font-pixel text-[11px] uppercase tracking-widest text-gold">
                     {id.name}
                   </div>

@@ -15,7 +15,7 @@ import { getExperiment } from "@/lib/persistence/experiments";
 import { getPersonalization } from "@/lib/persistence/personalization";
 import { type MoneyTypeKey } from "@/lib/domain/money-types";
 import { resolveIdentity } from "@/lib/domain/identities";
-import PersonaImage from "@/components/persona/persona-image";
+import { IdentityImage } from "@/components/persona/persona-image";
 import { INCOME_ROUTES, type RouteKey } from "@/lib/domain/income-routes";
 import type { RouteMatch } from "@/lib/domain/scoring";
 
@@ -199,7 +199,11 @@ export default async function DashboardPage() {
                     return (
                       <>
                         <div className="flex items-center gap-4">
-                          <PersonaImage type={identity.baseType} size="md" />
+                          <IdentityImage
+                            slug={identity.slug}
+                            baseType={identity.baseType}
+                            size="md"
+                          />
                           <div>
                             <p className="font-pixel text-xs uppercase tracking-[0.2em] text-gold">
                               {identity.name}

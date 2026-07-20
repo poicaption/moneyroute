@@ -13,7 +13,7 @@ import { ScoreBar } from "@/components/ui/score-bar";
 import { ButtonLink } from "@/components/ui/button";
 import CheckoutButton from "@/components/payments/checkout-button";
 import { SiteFooter, SiteHeader } from "@/components/site/chrome";
-import PersonaImage from "@/components/persona/persona-image";
+import { IdentityImage } from "@/components/persona/persona-image";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 
 const STORAGE_KEY = `rmr_answers_${ASSESSMENT_VERSION}`;
@@ -198,7 +198,12 @@ export default function ResultView() {
       <main className="mx-auto w-full max-w-4xl flex-1 px-4 py-12 sm:px-6">
         {/* Hero */}
         <section className="flex flex-col items-start gap-6 sm:flex-row sm:items-center">
-          <PersonaImage type={identity.baseType} size="xl" priority />
+          <IdentityImage
+            slug={identity.slug}
+            baseType={identity.baseType}
+            size="xl"
+            priority
+          />
           <div>
             <Eyebrow>1 ใน 16 อัตลักษณ์ทางการเงิน</Eyebrow>
             <p className="mt-3 font-pixel text-sm uppercase tracking-[0.2em] text-gold text-3d">
