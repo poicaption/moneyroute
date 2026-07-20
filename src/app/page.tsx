@@ -70,42 +70,59 @@ export default function Home() {
     <>
       <SiteHeader />
       <main className="flex-1">
-        {/* Hero */}
-        <section className="mx-auto max-w-6xl px-4 pt-20 pb-16 sm:px-6 sm:pt-28">
-          <div className="grid items-center gap-10 lg:grid-cols-[1.2fr_1fr]">
-            <div className="max-w-3xl">
+        {/* Hero — full-bleed cosmic banner with legibility scrims */}
+        <section className="relative overflow-hidden border-b border-border/60">
+          <picture>
+            <source
+              media="(max-width: 640px)"
+              srcSet="/hero/hero-mobile-1080x1920.webp"
+            />
+            <source
+              media="(max-width: 1024px)"
+              srcSet="/hero/hero-tablet-1600x1200.webp"
+            />
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/hero/hero-desktop-1920x1080.webp"
+              alt="6 Money Types และ 16 อัตลักษณ์ Money Route"
+              width={1920}
+              height={1080}
+              fetchPriority="high"
+              className="absolute inset-0 h-full w-full object-cover object-center"
+            />
+          </picture>
+          {/* Scrims: darken top (behind header) + bottom (behind text) so art
+              stays vivid in the middle and copy is always readable. */}
+          <div className="absolute inset-0 bg-gradient-to-t from-bg via-bg/25 to-bg/70" />
+          <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-bg via-bg/70 to-transparent" />
+
+          <div className="relative mx-auto flex min-h-[82vh] max-w-6xl flex-col justify-end px-4 pb-16 pt-24 sm:px-6 sm:pb-24">
+            <div className="max-w-2xl rmr-fade-up">
               <Eyebrow>ROOTMAN MONEY ROUTE</Eyebrow>
               <h1 className="text-3d mt-5 text-4xl font-black leading-[1.1] tracking-tight text-paper sm:text-6xl">
                 คุณอาจไม่ได้หาเงินไม่เก่ง
                 <br />
-                <span className="text-red">
+                <span className="text-gold">
                   แค่กำลังเล่นเกมที่ไม่เหมาะกับตัวเอง
                 </span>
               </h1>
-              <p className="mt-6 max-w-2xl text-lg leading-relaxed text-muted">
+              <p className="mt-6 max-w-2xl text-lg leading-relaxed text-paper/85">
                 ตอบคำถามเกี่ยวกับเงินทุน เวลา ทักษะ บุคลิก และข้อจำกัดของคุณ
                 เพื่อค้นหาเส้นทางสร้างรายได้ที่มีความเหมาะสมมากกว่า
                 พร้อมแผนเริ่มต้นที่ลงมือทำได้จริง
               </p>
               <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
-                <ButtonLink href="/assessment" variant="primary" size="lg">
+                <ButtonLink
+                  href="/assessment"
+                  variant="primary"
+                  size="lg"
+                  className="rmr-cta-pulse"
+                >
                   เริ่มวิเคราะห์เส้นทางของฉัน
                 </ButtonLink>
                 <span className="text-sm text-muted">
                   ไม่มีคำตอบถูกหรือผิด · ใช้เวลา 5–8 นาที
                 </span>
-              </div>
-            </div>
-            {/* Floating 3D persona cluster */}
-            <div className="relative hidden h-[340px] lg:block">
-              <div className="absolute left-1/2 top-0 z-10 -translate-x-1/2">
-                <PersonaImage type="hunter" size="xl" zoom={1.2} priority />
-              </div>
-              <div className="absolute left-10 top-40">
-                <PersonaImage type="creator" size="md" zoom={1.2} />
-              </div>
-              <div className="absolute right-10 top-44">
-                <PersonaImage type="builder" size="md" zoom={1.2} />
               </div>
             </div>
           </div>
