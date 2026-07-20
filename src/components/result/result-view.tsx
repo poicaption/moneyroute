@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { ASSESSMENT_VERSION } from "@/lib/domain/questions";
 import { MONEY_TYPES } from "@/lib/domain/money-types";
@@ -318,6 +319,13 @@ export default function ResultView() {
                   ))}
                 </div>
                 <div className="mt-8 rounded-xl border border-gold/40 bg-ink/60 p-6 text-center">
+                  <Image
+                    src="/products/income-blueprint.png"
+                    alt="Income Blueprint"
+                    width={360}
+                    height={360}
+                    className="mx-auto mb-4 h-36 w-auto object-contain drop-shadow-[0_10px_18px_rgba(0,0,0,0.5)]"
+                  />
                   <SectionTitle className="mx-auto max-w-xl text-2xl sm:text-3xl">
                     ปลดล็อก Income Blueprint ฉบับเต็ม
                   </SectionTitle>
@@ -347,6 +355,13 @@ export default function ResultView() {
                     <span className="inline-block rounded-full border border-gold/60 bg-gold/10 px-3 py-1 text-xs font-semibold uppercase tracking-widest text-gold">
                       คุ้มที่สุด
                     </span>
+                    <Image
+                      src="/products/route-kit.png"
+                      alt="Route Kit"
+                      width={480}
+                      height={480}
+                      className="mx-auto mt-4 h-44 w-auto object-contain drop-shadow-[0_12px_20px_rgba(0,0,0,0.55)]"
+                    />
                     <SectionTitle className="mx-auto mt-3 max-w-xl text-xl sm:text-2xl">
                       อัปเป็น Route Kit — ได้ Income Blueprint ฟรีในตัว
                     </SectionTitle>

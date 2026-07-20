@@ -41,11 +41,17 @@ export default function CheckoutButton({
       });
 
       if (res.status === 401) {
-        const here =
-          typeof window !== "undefined"
-            ? window.location.pathname + window.location.search
-            : "/pricing";
-        window.location.href = `/login?next=${encodeURIComponent(here)}`;
+        // Not signed in yet. Send the buyer to a purchase-aware auth screen,
+        // then auto-resume checkout so they never have to click "buy" twice.
+        const resumeParams = new URLSearchParams({ product: productSlug });
+        if (sessionId) resumeParams.set("session", sessionId);
+        const resume = `/checkout/resume?${resumeParams.toString()}`;
+        const loginParams = new URLSearchParams({
+          next: resume,
+          intent: "buy",
+          product: productSlug,
+        });
+        window.location.href = `/login?${loginParams.toString()}`;
         return;
       }
       if (res.status === 503) {

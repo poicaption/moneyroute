@@ -71,11 +71,19 @@ export function AuthNav() {
   }
 
   return (
-    <Link
-      href="/login"
-      className="hidden px-3 text-sm text-muted transition-colors hover:text-paper sm:inline"
-    >
-      เข้าสู่ระบบ
-    </Link>
+    <>
+      <Link
+        href="/login"
+        className="hidden px-3 text-sm text-muted transition-colors hover:text-paper sm:inline"
+      >
+        เข้าสู่ระบบ
+      </Link>
+      <Link
+        href="/login?mode=signup"
+        className="hidden px-3 text-sm font-semibold text-gold transition-colors hover:text-gold-soft sm:inline"
+      >
+        สมัครสมาชิก
+      </Link>
+    </>
   );
 }

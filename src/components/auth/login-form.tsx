@@ -12,12 +12,26 @@ type Status = "idle" | "working" | "error" | "unconfigured";
 const inputClass =
   "w-full rounded-md border border-border bg-ink/40 px-4 py-3 text-paper outline-none transition-colors placeholder:text-muted/60 focus:border-gold";
 
+/** Product context for the purchase-aware banner. */
+const PRODUCT_INFO: Record<string, { name: string; price: string }> = {
+  income_blueprint: { name: "Income Blueprint", price: "199฿" },
+  route_kit: { name: "Route Kit", price: "299฿" },
+};
+
 export default function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const next = searchParams.get("next") || "/result";
+  const intent = searchParams.get("intent");
+  const product = searchParams.get("product") ?? "";
+  const isBuying = intent === "buy";
+  const productInfo = PRODUCT_INFO[product] ?? null;
 
-  const [mode, setMode] = useState<Mode>("signin");
+  // When arriving from a purchase, default to creating an account — that's the
+  // fast path for first-time buyers. Existing customers can switch in one tap.
+  const [mode, setMode] = useState<Mode>(
+    isBuying || searchParams.get("mode") === "signup" ? "signup" : "signin",
+  );
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [status, setStatus] = useState<Status>(
@@ -80,11 +94,79 @@ export default function LoginForm() {
     router.refresh();
   }
 
+  function switchMode(target: Mode) {
+    setMode(target);
+    setStatus(searchParams.get("error") && target === "signin" ? "error" : "idle");
+    setMessage("");
+  }
+
   return (
     <Card glow="gold" className="p-8">
-      <Eyebrow>เข้าสู่ระบบ</Eyebrow>
+      {isBuying && (
+        <div className="mb-6 rounded-xl border border-gold/50 bg-gradient-to-b from-gold/15 to-transparent p-4 text-center">
+          <span className="inline-block rounded-full border border-gold/60 bg-gold/10 px-3 py-1 font-pixel text-[10px] uppercase tracking-widest text-gold">
+            อีกขั้นเดียว
+          </span>
+          <p className="mt-3 text-sm leading-relaxed text-paper">
+            สร้างบัญชีเพื่อรับ
+            {productInfo ? (
+              <>
+                {" "}
+                <span className="font-bold text-gold">
+                  {productInfo.name} ({productInfo.price})
+                </span>{" "}
+                ของคุณ
+              </>
+            ) : (
+              " สินค้าของคุณ"
+            )}{" "}
+            แล้วเราจะพาไปหน้าชำระเงินให้อัตโนมัติ
+          </p>
+          <p className="mt-1.5 text-xs text-cyan">
+            ใช้เวลา 10 วินาที · เข้าถึงผลและรายงานได้ตลอด
+          </p>
+        </div>
+      )}
+
+      {/* Segmented mode switch — signup is a first-class option, not a footnote. */}
+      <div
+        role="tablist"
+        aria-label="โหมดบัญชี"
+        className="grid grid-cols-2 gap-1 rounded-lg border border-border bg-ink/40 p-1"
+      >
+        <button
+          type="button"
+          role="tab"
+          aria-selected={mode === "signup"}
+          onClick={() => switchMode("signup")}
+          className={`rounded-md px-4 py-2 text-sm font-bold transition-colors ${
+            mode === "signup"
+              ? "bg-gold text-ink pixel-3d"
+              : "text-muted hover:text-paper"
+          }`}
+        >
+          สมัครสมาชิก
+        </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={mode === "signin"}
+          onClick={() => switchMode("signin")}
+          className={`rounded-md px-4 py-2 text-sm font-bold transition-colors ${
+            mode === "signin"
+              ? "bg-gold text-ink pixel-3d"
+              : "text-muted hover:text-paper"
+          }`}
+        >
+          เข้าสู่ระบบ
+        </button>
+      </div>
+
+      <Eyebrow className="mt-6">
+        {mode === "signin" ? "เข้าสู่ระบบ" : "สร้างบัญชีใหม่"}
+      </Eyebrow>
       <SectionTitle className="mt-3 text-2xl sm:text-3xl">
-        {mode === "signin" ? "เข้าสู่ระบบ" : "สร้างบัญชี"}
+        {mode === "signin" ? "ยินดีต้อนรับกลับ" : "สร้างบัญชีใน 10 วินาที"}
       </SectionTitle>
       <p className="mt-3 text-sm text-muted">
         {mode === "signin"
@@ -153,24 +235,36 @@ export default function LoginForm() {
             ? "กำลังดำเนินการ…"
             : mode === "signin"
               ? "เข้าสู่ระบบ"
-              : "สมัครสมาชิก"}
+              : isBuying
+                ? "สมัคร แล้วไปชำระเงิน →"
+                : "สมัครสมาชิก"}
         </Button>
       </form>
 
-      <div className="mt-4 flex items-center justify-between text-sm">
-        <button
-          type="button"
-          onClick={() => {
-            setMode(mode === "signin" ? "signup" : "signin");
-            setStatus("idle");
-            setMessage("");
-          }}
-          className="text-gold hover:underline"
-        >
-          {mode === "signin"
-            ? "ยังไม่มีบัญชี? สมัครสมาชิก"
-            : "มีบัญชีอยู่แล้ว? เข้าสู่ระบบ"}
-        </button>
+      <div className="mt-4 text-center text-sm text-muted">
+        {mode === "signin" ? (
+          <>
+            ยังไม่มีบัญชี?{" "}
+            <button
+              type="button"
+              onClick={() => switchMode("signup")}
+              className="font-semibold text-gold hover:underline"
+            >
+              สมัครสมาชิกฟรี
+            </button>
+          </>
+        ) : (
+          <>
+            มีบัญชีอยู่แล้ว?{" "}
+            <button
+              type="button"
+              onClick={() => switchMode("signin")}
+              className="font-semibold text-gold hover:underline"
+            >
+              เข้าสู่ระบบ
+            </button>
+          </>
+        )}
       </div>
     </Card>
   );

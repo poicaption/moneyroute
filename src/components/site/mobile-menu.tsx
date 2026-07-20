@@ -141,6 +141,13 @@ export function MobileMenu() {
               >
                 เข้าสู่ระบบ
               </Link>
+              <Link
+                href="/login?mode=signup"
+                className={`${linkClass} font-semibold text-gold hover:text-gold-soft`}
+                onClick={() => setOpen(false)}
+              >
+                สมัครสมาชิก
+              </Link>
             </>
           )}
         </div>

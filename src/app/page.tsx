@@ -1,5 +1,6 @@
 import { ButtonLink } from "@/components/ui/button";
 import { Card, Eyebrow, SectionTitle } from "@/components/ui/card";
+import Image from "next/image";
 import { SiteFooter, SiteHeader } from "@/components/site/chrome";
 import { MONEY_TYPE_LIST } from "@/lib/domain/money-types";
 import { IDENTITY_LIST } from "@/lib/domain/identities";
@@ -22,6 +23,27 @@ const RECEIVE = [
   "ข้อเสนอแรกและแผนหาลูกค้า 20 คนแรก",
   "แผนทดลอง 7 วัน และ Roadmap 30 วัน",
   "เกณฑ์ตัดสินว่าไปต่อหรือหยุด",
+];
+
+const PRODUCTS = [
+  {
+    image: "/products/money-scan.png",
+    name: "Money Scan",
+    price: "ฟรี",
+    desc: "แบบประเมิน 48 ข้อ + ผลลัพธ์อัตลักษณ์เบื้องต้น",
+  },
+  {
+    image: "/products/income-blueprint.png",
+    name: "Income Blueprint",
+    price: "199฿",
+    desc: "รายงานเส้นทางรายได้ฉบับเต็มเฉพาะบุคคล",
+  },
+  {
+    image: "/products/route-kit.png",
+    name: "Route Kit",
+    price: "299฿",
+    desc: "ชุดเครื่องมือลงมือ + โปรแกรม 45 วัน (แถม Blueprint)",
+  },
 ];
 
 const FAQ = [
@@ -226,6 +248,51 @@ export default function Home() {
                 </li>
               ))}
             </ul>
+          </div>
+        </section>
+
+        {/* Products showcase */}
+        <section className="border-y border-border/60 bg-ink/40">
+          <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
+            <div className="text-center">
+              <Eyebrow>แพ็กเกจ</Eyebrow>
+              <SectionTitle className="mt-3">
+                เริ่มฟรี แล้วปลดล็อกเมื่อพร้อมลงมือจริง
+              </SectionTitle>
+            </div>
+            <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {PRODUCTS.map((p, i) => (
+                <Card
+                  key={p.name}
+                  className="flex flex-col p-6"
+                  glow={i === 2 ? "gold" : null}
+                >
+                  <div className="flex items-center justify-center rounded-lg border border-border/60 bg-ink/50 p-3">
+                    <Image
+                      src={p.image}
+                      alt={p.name}
+                      width={480}
+                      height={480}
+                      className="h-44 w-auto object-contain drop-shadow-[0_12px_20px_rgba(0,0,0,0.55)]"
+                    />
+                  </div>
+                  <div className="mt-4 flex items-baseline justify-between gap-2">
+                    <span className="text-lg font-extrabold text-paper">
+                      {p.name}
+                    </span>
+                    <span className="font-pixel text-lg text-gold">
+                      {p.price}
+                    </span>
+                  </div>
+                  <p className="mt-2 flex-1 text-sm text-muted">{p.desc}</p>
+                </Card>
+              ))}
+            </div>
+            <div className="mt-8 text-center">
+              <ButtonLink href="/pricing" variant="gold" size="md">
+                ดูรายละเอียดแพ็กเกจ
+              </ButtonLink>
+            </div>
           </div>
         </section>
 

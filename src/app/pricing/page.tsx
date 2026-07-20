@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import { SiteFooter, SiteHeader } from "@/components/site/chrome";
 import { Card, Eyebrow, SectionTitle } from "@/components/ui/card";
 import { ButtonLink } from "@/components/ui/button";
@@ -11,6 +12,7 @@ export const metadata: Metadata = {
 const TIERS = [
   {
     name: "Money Scan",
+    image: "/products/money-scan.png",
     price: "ฟรี",
     originalPrice: null as string | null,
     badge: null as string | null,
@@ -27,6 +29,7 @@ const TIERS = [
   },
   {
     name: "Income Blueprint",
+    image: "/products/income-blueprint.png",
     price: "199฿",
     originalPrice: "390฿",
     badge: null as string | null,
@@ -46,6 +49,7 @@ const TIERS = [
   },
   {
     name: "Route Kit",
+    image: "/products/route-kit.png",
     price: "299฿",
     originalPrice: "498฿",
     badge: "คุ้มที่สุด",
@@ -102,6 +106,16 @@ export default async function PricingPage({
                   {t.badge}
                 </span>
               )}
+              <div className="-mx-2 mb-4 flex items-center justify-center rounded-lg border border-border/60 bg-ink/50 p-3">
+                <Image
+                  src={t.image}
+                  alt={t.name}
+                  width={420}
+                  height={420}
+                  className="h-40 w-auto object-contain drop-shadow-[0_10px_18px_rgba(0,0,0,0.5)]"
+                  priority={t.highlight}
+                />
+              </div>
               <div className="text-lg font-bold text-paper">{t.name}</div>
               <div className="mt-2 flex items-baseline gap-2">
                 <span className="text-3xl font-black text-gold">{t.price}</span>
