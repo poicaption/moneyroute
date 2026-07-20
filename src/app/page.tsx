@@ -2,6 +2,7 @@ import { ButtonLink } from "@/components/ui/button";
 import { Card, Eyebrow, SectionTitle } from "@/components/ui/card";
 import { SiteFooter, SiteHeader } from "@/components/site/chrome";
 import { MONEY_TYPE_LIST } from "@/lib/domain/money-types";
+import { IDENTITY_LIST } from "@/lib/domain/identities";
 import PersonaImage from "@/components/persona/persona-image";
 
 const HOW_IT_WORKS = [
@@ -13,7 +14,7 @@ const HOW_IT_WORKS = [
 ];
 
 const RECEIVE = [
-  "Money Type หลักและรองของคุณ",
+  "อัตลักษณ์ทางการเงินของคุณ (1 ใน 16 แบบ)",
   "เส้นทางที่เหมาะ 3 อันดับ พร้อมเหตุผล",
   "เส้นทางที่ควรหลีกเลี่ยงในตอนนี้",
   "ข้อเสนอแรกและแผนหาลูกค้า 20 คนแรก",
@@ -148,6 +149,40 @@ export default function Home() {
                 </Card>
               ))}
             </div>
+          </div>
+        </section>
+
+        {/* 16 Identities */}
+        <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
+          <Eyebrow>16 อัตลักษณ์ทางการเงิน</Eyebrow>
+          <SectionTitle className="mt-3">
+            จาก 6 Money Types สู่ 16 อัตลักษณ์ที่เป็นตัวคุณ
+          </SectionTitle>
+          <p className="mt-4 max-w-2xl text-muted">
+            หลังทำแบบทดสอบ ระบบจะบอกว่าคุณคือ 1 ใน 16 อัตลักษณ์ —
+            ผสานจุดแข็งหลักและรองของคุณเข้าด้วยกัน พร้อมเส้นทางที่เหมาะ
+            และคู่หูที่ควรจับมือเพื่อไปให้ไกลกว่าเดิม
+          </p>
+          <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {IDENTITY_LIST.map((id) => (
+              <Card key={id.slug} className="p-5" glow="gold">
+                <div className="flex flex-col items-center text-center">
+                  <PersonaImage type={id.baseType} size="sm" ground={false} />
+                  <div className="mt-3 font-pixel text-[11px] uppercase tracking-widest text-gold">
+                    {id.name}
+                  </div>
+                  <div className="mt-1 text-lg font-extrabold text-paper">
+                    {id.thaiName}
+                  </div>
+                  <div className="mt-1 text-xs text-gold/80">{id.tagline}</div>
+                </div>
+              </Card>
+            ))}
+          </div>
+          <div className="mt-8 text-center">
+            <ButtonLink href="/assessment" variant="primary" size="lg">
+              ค้นหาอัตลักษณ์ของฉัน
+            </ButtonLink>
           </div>
         </section>
 
